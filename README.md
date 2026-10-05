@@ -1,34 +1,33 @@
 # 会員情報 (`member`)
 
-JBS向けの会員情報マスター・名札出力ツールです。
+JBS向けの会員情報・名札出力ツールです。
 
-## データ管理
+## 会員データ
 
-会員情報は `data/members.json`、顔写真は `images/` に直接保存します。
-ツール画面上では会員の追加・削除・顔写真の登録は行いません。
+会員の追加・削除は、GitHub の `images/` フォルダへ顔写真を追加・削除することで行います。
+ツール画面上では会員の追加・削除・顔写真登録は行いません。
 
-1会員につき顔写真は1枚です。顔写真のファイル名は会員IDに合わせる運用を推奨します。
+顔写真は **1人1枚** とし、ファイル名を次の形式にします。
+
+```text
+名前_名前英語.png
+```
 
 例:
 
 ```text
-images/yanagi-nobusuke.png
+images/柳 暢祐_YANAGI Nobusuke.png
 ```
 
-`data/members.json` の例:
+ファイル名は変更せず、そのまま GitHub に保存します。
+そのため GitHub から画像をダウンロードした場合も `柳 暢祐_YANAGI Nobusuke.png` の名前を維持できます。
 
-```json
-{
-  "id": "yanagi-nobusuke",
-  "name": "柳 暢祐",
-  "nameEn": "YANAGI Nobusuke",
-  "photo": "images/yanagi-nobusuke.png",
-  "badgeText": "",
-  "bandColor": ""
-}
-```
+GitHub Pages のデプロイ時に `scripts/build-members.py` が `images/` を読み取り、ファイル名の最初の `_` を区切りとして以下を自動判定します。
 
-このJSONを他のJBSツールから読み込むことで、共通の選手マスターとして利用できます。
+- `_` より前 → 名前
+- `_` より後 → 名前英語
+
+生成された `data/members.json` を画面が読み込みます。`data/members.json` は自動生成ファイルのため、リポジトリへ手動で保存する必要はありません。
 
 ## 名札
 
@@ -42,4 +41,4 @@ A4縦・2列×5段の1ページ10枚です。10名を超えた場合は自動で
 リポジトリ名: `member`
 
 GitHub Pages の Source は **GitHub Actions** を使用します。
-`main` への push で `.github/workflows/pages.yml` から公開します。
+`main` への push で会員一覧を自動生成し、そのまま公開します。

@@ -24,15 +24,12 @@ function normalizePhotoPath(value) {
 }
 
 function normalizeMember(raw, index) {
-  const legacyPhotos = Array.isArray(raw?.photos) ? raw.photos : [];
-  const photo = raw?.photo ?? raw?.mainPhoto ?? legacyPhotos[0] ?? '';
-
   return {
-    id: String(raw?.id || `member-${index + 1}`),
-    sortIndex: Number.isFinite(raw?.sortIndex) ? raw.sortIndex : index,
+    id: String(raw?.id || raw?.filename || `member-${index + 1}`),
     nameJa: String(raw?.name ?? raw?.nameJa ?? '').trim(),
     nameEn: String(raw?.nameEn ?? '').trim(),
-    photo: normalizePhotoPath(photo),
+    photo: normalizePhotoPath(raw?.photo),
+    filename: String(raw?.filename ?? '').trim(),
     badgeText: String(raw?.badgeText ?? '').trim(),
     bandColor: normalizeColor(raw?.bandColor),
   };
@@ -82,6 +79,8 @@ function renderPhoto(member, row) {
 
   if (member.photo) {
     image.src = assetUrl(member.photo);
+    image.alt = member.filename || `${member.nameJa} 顔写真`;
+    image.title = member.filename || '';
     image.hidden = false;
     placeholder.hidden = true;
   } else {
@@ -144,22 +143,22 @@ function applySearch() {
 }
 
 async function loadMembers() {
-  // GitHub Pages / browser cache に旧データが残っても更新内容を確実に取得する。
-  const dataUrl = new URL('../data/members.json?v=8', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=9', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
-    throw new Error(`members.json の取得に失敗しました (${response.status})`);
+    throw new Error(`会員一覧の取得に失敗しました (${response.status})`);
   }
 
   const data = await response.json();
   const source = Array.isArray(data) ? data : data?.members;
   if (!Array.isArray(source)) {
-    throw new Error('members.json の形式が正しくありません。');
+    throw new Error('自動生成された会員一覧の形式が正しくありません。');
   }
 
   members = source
     .map(normalizeMember)
-    .sort((a, b) => a.sortIndex - b.sortIndex || a.nameJa.localeCompare(b.nameJa, 'ja'));
+    .filter(member => member.nameJa && member.nameEn && member.photo)
+    .sort((a, b) => a.nameJa.localeCompare(b.nameJa, 'ja'));
 }
 
 searchInput.addEventListener('input', applySearch);
@@ -180,7 +179,7 @@ try {
   console.error(error);
   members = [];
   emptyTitle.textContent = '会員情報を読み込めませんでした。';
-  emptyMessage.textContent = error.message || 'data/members.json を確認してください。';
+  emptyMessage.textContent = error.message || 'images/ のファイル名を確認してください。';
   emptyState.hidden = false;
   updateSelectionUi();
 }

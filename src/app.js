@@ -10,11 +10,55 @@ const template = $('#memberRowTemplate');
 const photoExportBtn = $('#photoExportBtn');
 const printBtn = $('#printBtn');
 const searchInput = $('#searchInput');
+const inputSelectBtn = $('#inputSelectBtn');
+const selectAllBtn = $('#selectAllBtn');
 const clearAllBtn = $('#clearAllBtn');
+const inputSelectDialog = $('#inputSelectDialog');
+const inputSelectText = $('#inputSelectText');
+const inputSelectResult = $('#inputSelectResult');
+const inputSelectApplyBtn = $('#inputSelectApplyBtn');
+const inputSelectCancelBtn = $('#inputSelectCancelBtn');
+const inputSelectCloseBtn = $('#inputSelectCloseBtn');
 const printRoot = $('#printRoot');
 
 let members = [];
 const selectedIds = new Set();
+
+function isForeignMember(member) {
+  const name = member.nameJa;
+  const hasLatin = /[A-Za-z]/.test(name);
+  const hasJapanese = /[\u3040-\u30ff\u3400-\u9fff]/.test(name);
+  return hasLatin && !hasJapanese;
+}
+
+function normalizeMatchText(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLocaleLowerCase('ja');
+}
+
+function compactMatchText(value) {
+  return normalizeMatchText(value).replace(/[\s/／・,，]+/g, '');
+}
+
+function lineMatchesMember(line, member) {
+  const normalizedLine = normalizeMatchText(line);
+  const compactLine = compactMatchText(line);
+  const names = isForeignMember(member)
+    ? [member.nameJa]
+    : [member.nameJa, member.nameEn];
+
+  return names.some(name => {
+    const normalizedName = normalizeMatchText(name);
+    const compactName = compactMatchText(name);
+    return normalizedName && (
+      normalizedLine.includes(normalizedName) ||
+      compactLine.includes(compactName)
+    );
+  });
+}
 
 function normalizeColor(value) {
   const color = String(value || '').trim();
@@ -66,7 +110,10 @@ function isVisibleMember(member) {
 }
 
 function updateSelectionUi() {
+  const hasMembers = members.length > 0;
   const hasSelection = selectedIds.size > 0;
+  inputSelectBtn.disabled = !hasMembers;
+  selectAllBtn.disabled = !hasMembers;
   photoExportBtn.disabled = !hasSelection;
   printBtn.disabled = !hasSelection;
   clearAllBtn.disabled = !hasSelection;
@@ -150,12 +197,70 @@ function applySearch() {
   updateSelectionUi();
 }
 
+function syncSelectionCheckboxes() {
+  listEl.querySelectorAll('.member-row').forEach(row => {
+    const check = $('.print-check', row);
+    if (check) check.checked = selectedIds.has(row.dataset.memberId);
+  });
+}
+
 function clearAllSelections() {
   selectedIds.clear();
-  listEl.querySelectorAll('.print-check').forEach(check => {
-    check.checked = false;
-  });
+  syncSelectionCheckboxes();
   updateSelectionUi();
+}
+
+function selectAllMembers() {
+  members.forEach(member => selectedIds.add(member.id));
+  syncSelectionCheckboxes();
+  updateSelectionUi();
+}
+
+function openInputSelectDialog() {
+  inputSelectText.value = '';
+  inputSelectResult.hidden = true;
+  inputSelectResult.textContent = '';
+  inputSelectDialog.showModal();
+  requestAnimationFrame(() => inputSelectText.focus());
+}
+
+function closeInputSelectDialog() {
+  if (inputSelectDialog.open) inputSelectDialog.close();
+}
+
+function applyInputSelection() {
+  const lines = inputSelectText.value
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) {
+    inputSelectResult.hidden = false;
+    inputSelectResult.textContent = '選手リストを入力してください。';
+    return;
+  }
+
+  selectedIds.clear();
+  const unmatched = [];
+
+  lines.forEach(line => {
+    const member = members.find(candidate => lineMatchesMember(line, candidate));
+    if (member) selectedIds.add(member.id);
+    else unmatched.push(line);
+  });
+
+  syncSelectionCheckboxes();
+  updateSelectionUi();
+
+  if (unmatched.length) {
+    inputSelectResult.hidden = false;
+    inputSelectResult.textContent =
+      `プリセットにない選手（${unmatched.length}名）\n` +
+      unmatched.join('\n');
+    return;
+  }
+
+  closeInputSelectDialog();
 }
 
 function triggerDownload(blob, filename) {
@@ -201,7 +306,7 @@ async function exportSelectedPhotos() {
 }
 
 async function loadMembers() {
-  const dataUrl = new URL('../data/members.json?v=13', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=19', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`会員一覧の取得に失敗しました (${response.status})`);
@@ -239,7 +344,12 @@ async function loadMembers() {
 }
 
 searchInput.addEventListener('input', applySearch);
+inputSelectBtn.addEventListener('click', openInputSelectDialog);
+selectAllBtn.addEventListener('click', selectAllMembers);
 clearAllBtn.addEventListener('click', clearAllSelections);
+inputSelectApplyBtn.addEventListener('click', applyInputSelection);
+inputSelectCancelBtn.addEventListener('click', closeInputSelectDialog);
+inputSelectCloseBtn.addEventListener('click', closeInputSelectDialog);
 photoExportBtn.addEventListener('click', exportSelectedPhotos);
 
 printBtn.addEventListener('click', () => {

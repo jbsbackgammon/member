@@ -45,7 +45,7 @@ button { cursor: pointer; }
 .button:hover { background: #f2f4f7; }
 .button:disabled { opacity: .45; cursor: default; }
 
-.app-main { width: min(1180px, calc(100% - 32px)); margin: 14px auto 48px; }
+.app-main { width: min(980px, calc(100% - 32px)); margin: 14px auto 48px; }
 
 input[type="text"], input[type="search"] {
   border: 1px solid #c9ced6;
@@ -68,9 +68,9 @@ input[type="text"]:focus, input[type="search"]:focus {
   background: #fff;
 }
 .member-list-head, .member-row {
-  min-width: 920px;
+  min-width: 820px;
   display: grid;
-  grid-template-columns: 60px minmax(125px,.92fr) minmax(155px,1fr) 70px minmax(145px,.88fr) 244px;
+  grid-template-columns: 60px 52px minmax(115px,.9fr) minmax(140px,1fr) minmax(125px,.86fr) 244px;
 }
 .member-list-head {
   background: #f2f4f7;
@@ -86,7 +86,8 @@ input[type="text"]:focus, input[type="search"]:focus {
   display: flex;
   align-items: center;
 }
-.member-list-head .col-check { justify-content: center; }
+.member-list-head .col-check,
+.member-list-head .col-photo { justify-content: center; }
 .member-list-head > div:last-child { border-right: 0; }
 
 .member-row {

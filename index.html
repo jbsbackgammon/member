@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#ffffff">
   <title>会員情報</title>
-  <link rel="stylesheet" href="./style.css?v=15">
+  <link rel="stylesheet" href="./style.css?v=16">
 </head>
 <body>
   <header class="app-header">
@@ -23,9 +23,9 @@
     <section class="member-list-wrap">
       <div class="member-list-head" aria-hidden="true">
         <div class="col-check">選択</div>
+        <div class="col-photo">顔写真</div>
         <div class="col-name">名前</div>
         <div class="col-en">名前英語</div>
-        <div class="col-photo">顔写真</div>
         <div class="col-badge">名札文言</div>
         <div class="col-color">名札帯色</div>
       </div>
@@ -44,17 +44,17 @@
           <input class="print-check" type="checkbox" aria-label="選択">
         </label>
       </div>
-      <div class="col-name text-cell">
-        <div class="member-name-ja"></div>
-      </div>
-      <div class="col-en text-cell">
-        <div class="member-name-en"></div>
-      </div>
       <div class="col-photo photo-cell">
         <div class="photo-wrap">
           <img class="member-photo" alt="顔写真" hidden>
           <div class="photo-placeholder">PHOTO</div>
         </div>
+      </div>
+      <div class="col-name text-cell">
+        <div class="member-name-ja"></div>
+      </div>
+      <div class="col-en text-cell">
+        <div class="member-name-en"></div>
       </div>
       <div class="col-badge field-cell">
         <input class="badge-text" type="text" autocomplete="off" aria-label="名札文言">

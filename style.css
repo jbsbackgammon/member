@@ -45,7 +45,7 @@ button { cursor: pointer; }
 .button:hover { background: #f2f4f7; }
 .button:disabled { opacity: .45; cursor: default; }
 
-.app-main { width: min(1320px, calc(100% - 32px)); margin: 14px auto 48px; }
+.app-main { width: min(1180px, calc(100% - 32px)); margin: 14px auto 48px; }
 
 input[type="text"], input[type="search"] {
   border: 1px solid #c9ced6;
@@ -68,9 +68,9 @@ input[type="text"]:focus, input[type="search"]:focus {
   background: #fff;
 }
 .member-list-head, .member-row {
-  min-width: 980px;
+  min-width: 920px;
   display: grid;
-  grid-template-columns: 64px minmax(135px,1fr) minmax(170px,1.08fr) 78px minmax(155px,.95fr) 244px;
+  grid-template-columns: 60px minmax(125px,.92fr) minmax(155px,1fr) 70px minmax(145px,.88fr) 244px;
 }
 .member-list-head {
   background: #f2f4f7;
@@ -81,7 +81,7 @@ input[type="text"]:focus, input[type="search"]:focus {
 }
 .member-list-head > div {
   min-height: 34px;
-  padding: 7px 9px;
+  padding: 7px 5px;
   border-right: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
@@ -96,7 +96,7 @@ input[type="text"]:focus, input[type="search"]:focus {
 }
 .member-row:last-child { border-bottom: 0; }
 .member-row > div {
-  padding: 2px;
+  padding: 2px 5px;
   border-right: 1px solid #eef0f2;
   min-width: 0;
   overflow: hidden;
@@ -142,7 +142,7 @@ input[type="text"]:focus, input[type="search"]:focus {
   color: #9aa1ab;
 }
 
-.field-check { padding: 2px !important; }
+.field-check { padding: 2px 5px !important; }
 .print-check-label {
   width: 100%;
   height: 100%;
@@ -151,11 +151,33 @@ input[type="text"]:focus, input[type="search"]:focus {
   cursor: pointer;
 }
 .print-check {
+  appearance: none;
+  -webkit-appearance: none;
   width: 30px;
   height: 30px;
   margin: 0;
-  accent-color: var(--accent);
+  border: 1px solid #aeb5bf;
+  border-radius: 4px;
+  background: #fff;
+  display: grid;
+  place-content: center;
   cursor: pointer;
+}
+.print-check:checked {
+  background: var(--accent);
+  border-color: #aeb5bf;
+}
+.print-check:checked::after {
+  content: "";
+  width: 8px;
+  height: 14px;
+  border: solid #fff;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+.print-check:focus-visible {
+  outline: 2px solid rgba(27,95,191,.35);
+  outline-offset: 2px;
 }
 
 .field-cell { display: flex; align-items: center; }

@@ -236,7 +236,7 @@ input[type="text"]:focus, input[type="search"]:focus {
     height: 297mm;
     display: grid;
     grid-template-columns: 105mm 105mm;
-    grid-template-rows: repeat(4, 74.25mm);
+    grid-template-rows: repeat(5, 59.4mm);
     page-break-after: always;
     break-after: page;
     overflow: hidden;
@@ -245,7 +245,7 @@ input[type="text"]:focus, input[type="search"]:focus {
   .badge-page:last-child { page-break-after: auto; break-after: auto; }
   .badge-cell {
     width: 105mm;
-    height: 74.25mm;
+    height: 59.4mm;
     border-right: .2mm solid #d8d8d8;
     border-bottom: .2mm solid #d8d8d8;
     overflow: hidden;
@@ -259,7 +259,7 @@ input[type="text"]:focus, input[type="search"]:focus {
     print-color-adjust: exact;
   }
   .badge-cell:nth-child(2n) { border-right: 0; }
-  .badge-cell:nth-child(n+7) { border-bottom: 0; }
+  .badge-cell:nth-child(n+9) { border-bottom: 0; }
   .badge-name {
     padding: 0 4mm;
     font-size: 30pt;

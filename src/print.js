@@ -27,7 +27,7 @@ function bandClass(text) {
 
 export function buildPrintPages(root, members) {
   root.replaceChildren();
-  const pageSize = 8;
+  const pageSize = 10;
   const pageCount = Math.max(1, Math.ceil(members.length / pageSize));
 
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {

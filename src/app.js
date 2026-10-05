@@ -9,6 +9,7 @@ const template = $('#memberRowTemplate');
 const printBtn = $('#printBtn');
 const selectedCount = $('#selectedCount');
 const searchInput = $('#searchInput');
+const clearAllBtn = $('#clearAllBtn');
 const printRoot = $('#printRoot');
 
 let members = [];
@@ -142,8 +143,16 @@ function applySearch() {
   updateSelectionUi();
 }
 
+function clearAllSelections() {
+  selectedIds.clear();
+  listEl.querySelectorAll('.print-check').forEach(check => {
+    check.checked = false;
+  });
+  updateSelectionUi();
+}
+
 async function loadMembers() {
-  const dataUrl = new URL('../data/members.json?v=9', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=10', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`会員一覧の取得に失敗しました (${response.status})`);
@@ -162,6 +171,7 @@ async function loadMembers() {
 }
 
 searchInput.addEventListener('input', applySearch);
+clearAllBtn.addEventListener('click', clearAllSelections);
 
 printBtn.addEventListener('click', () => {
   const selected = members.filter(member => selectedIds.has(member.id));

@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#ffffff">
   <title>会員情報</title>
-  <link rel="stylesheet" href="./style.css?v=9">
+  <link rel="stylesheet" href="./style.css?v=10">
 </head>
 <body>
   <header class="app-header">
@@ -19,11 +19,11 @@
 
   <main class="app-main">
     <section class="member-list-wrap">
-      <div class="member-list-head" aria-hidden="true">
+      <div class="member-list-head">
         <div class="col-name">名前</div>
         <div class="col-en">名前英語</div>
         <div class="col-photo">顔写真</div>
-        <div class="col-check">名札</div>
+        <div class="col-check"><button id="clearAllBtn" class="clear-all-btn" type="button" title="名札出力のチェックをすべて外す">全解除</button></div>
         <div class="col-badge">名札文言</div>
         <div class="col-color">名札帯色</div>
       </div>
@@ -60,10 +60,14 @@
       <div class="col-color color-cell">
         <div class="color-presets" aria-label="名札帯色">
           <button type="button" data-color="" class="color-none" title="色なし" aria-label="色なし"></button>
-          <button type="button" data-color="#fff200" title="黄" aria-label="黄"></button>
-          <button type="button" data-color="#b42893" title="紫" aria-label="紫"></button>
           <button type="button" data-color="#000000" title="黒" aria-label="黒"></button>
+          <button type="button" data-color="#d32f2f" title="赤" aria-label="赤"></button>
           <button type="button" data-color="#1b5fbf" title="青" aria-label="青"></button>
+          <button type="button" data-color="#fff200" title="黄" aria-label="黄"></button>
+          <button type="button" data-color="#2e7d32" title="緑" aria-label="緑"></button>
+          <button type="button" data-color="#ef6c00" title="橙" aria-label="橙"></button>
+          <button type="button" data-color="#e91e63" title="桃" aria-label="桃"></button>
+          <button type="button" data-color="#8e24aa" title="紫" aria-label="紫"></button>
         </div>
       </div>
     </article>
@@ -71,6 +75,6 @@
 
   <div id="printRoot" class="print-root" aria-hidden="true"></div>
 
-  <script type="module" src="./src/app.js?v=9"></script>
+  <script type="module" src="./src/app.js?v=10"></script>
 </body>
 </html>

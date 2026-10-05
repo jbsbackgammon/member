@@ -12,16 +12,13 @@
   <header class="app-header">
     <h1>会員情報</h1>
     <div class="header-actions">
-      <button id="printBtn" class="button" type="button" disabled>名札PDF出力 <span id="selectedCount">0</span>名</button>
+      <input id="searchInput" class="header-search" type="search" autocomplete="off" placeholder="検索" aria-label="検索">
+      <button id="printBtn" class="button" type="button" disabled>名札出力 <span id="selectedCount">0</span>名</button>
     </div>
   </header>
 
   <main class="app-main">
     <section class="toolbar" aria-label="会員リスト操作">
-      <label class="search-box">
-        <span>検索</span>
-        <input id="searchInput" type="search" autocomplete="off" placeholder="名前・英語名・名札文言">
-      </label>
       <div class="toolbar-spacer"></div>
       <button id="selectVisibleBtn" class="button small" type="button">表示中を全選択</button>
     </section>

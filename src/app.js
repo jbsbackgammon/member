@@ -24,12 +24,15 @@ function normalizePhotoPath(value) {
 }
 
 function normalizeMember(raw, index) {
+  const legacyPhotos = Array.isArray(raw?.photos) ? raw.photos : [];
+  const photo = raw?.photo ?? raw?.mainPhoto ?? legacyPhotos[0] ?? '';
+
   return {
     id: String(raw?.id || `member-${index + 1}`),
     sortIndex: Number.isFinite(raw?.sortIndex) ? raw.sortIndex : index,
     nameJa: String(raw?.name ?? raw?.nameJa ?? '').trim(),
     nameEn: String(raw?.nameEn ?? '').trim(),
-    photo: normalizePhotoPath(raw?.photo),
+    photo: normalizePhotoPath(photo),
     badgeText: String(raw?.badgeText ?? '').trim(),
     bandColor: normalizeColor(raw?.bandColor),
   };
@@ -141,7 +144,9 @@ function applySearch() {
 }
 
 async function loadMembers() {
-  const response = await fetch('./data/members.json', { cache: 'no-store' });
+  // GitHub Pages / browser cache に旧データが残っても更新内容を確実に取得する。
+  const dataUrl = new URL('../data/members.json?v=8', import.meta.url);
+  const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`members.json の取得に失敗しました (${response.status})`);
   }

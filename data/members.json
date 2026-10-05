@@ -1,12 +1,12 @@
 {
-  "version": 1,
+  "version": 2,
   "members": [
     {
       "id": "yanagi-nobusuke",
       "sortIndex": 0,
       "name": "柳 暢祐",
       "nameEn": "YANAGI Nobusuke",
-      "photo": "images/yanagi-nobusuke/01.png",
+      "photo": "images/yanagi-nobusuke.png",
       "badgeText": "",
       "bandColor": ""
     }

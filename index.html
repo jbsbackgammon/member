@@ -6,24 +6,26 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#ffffff">
   <title>会員情報</title>
-  <link rel="stylesheet" href="./style.css?v=10">
+  <link rel="stylesheet" href="./style.css?v=11">
 </head>
 <body>
   <header class="app-header">
     <h1>会員情報</h1>
     <div class="header-actions">
       <input id="searchInput" class="header-search" type="search" autocomplete="off" placeholder="検索" aria-label="検索">
-      <button id="printBtn" class="button" type="button" disabled>名札出力 <span id="selectedCount">0</span>名</button>
+      <button id="photoExportBtn" class="button" type="button" disabled>写真出力</button>
+      <button id="printBtn" class="button" type="button" disabled>名札出力</button>
+      <button id="clearAllBtn" class="button" type="button" disabled>全解除</button>
     </div>
   </header>
 
   <main class="app-main">
     <section class="member-list-wrap">
-      <div class="member-list-head">
+      <div class="member-list-head" aria-hidden="true">
+        <div class="col-check">選択</div>
         <div class="col-name">名前</div>
         <div class="col-en">名前英語</div>
         <div class="col-photo">顔写真</div>
-        <div class="col-check"><button id="clearAllBtn" class="clear-all-btn" type="button" title="名札出力のチェックをすべて外す">全解除</button></div>
         <div class="col-badge">名札文言</div>
         <div class="col-color">名札帯色</div>
       </div>
@@ -37,6 +39,11 @@
 
   <template id="memberRowTemplate">
     <article class="member-row">
+      <div class="col-check field-check">
+        <label class="print-check-label" title="選択">
+          <input class="print-check" type="checkbox" aria-label="選択">
+        </label>
+      </div>
       <div class="col-name text-cell">
         <div class="member-name-ja"></div>
       </div>
@@ -48,11 +55,6 @@
           <img class="member-photo" alt="顔写真" hidden>
           <div class="photo-placeholder">PHOTO</div>
         </div>
-      </div>
-      <div class="col-check field-check">
-        <label class="print-check-label" title="名札出力対象にする">
-          <input class="print-check" type="checkbox" aria-label="名札出力対象">
-        </label>
       </div>
       <div class="col-badge field-cell">
         <input class="badge-text" type="text" autocomplete="off" aria-label="名札文言">
@@ -75,6 +77,6 @@
 
   <div id="printRoot" class="print-root" aria-hidden="true"></div>
 
-  <script type="module" src="./src/app.js?v=10"></script>
+  <script type="module" src="./src/app.js?v=11"></script>
 </body>
 </html>

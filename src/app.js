@@ -1,4 +1,5 @@
 import { buildPrintPages } from './print.js';
+import { createZip } from './zip.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const listEl = $('#memberList');
@@ -6,8 +7,8 @@ const emptyState = $('#emptyState');
 const emptyTitle = $('#emptyTitle');
 const emptyMessage = $('#emptyMessage');
 const template = $('#memberRowTemplate');
+const photoExportBtn = $('#photoExportBtn');
 const printBtn = $('#printBtn');
-const selectedCount = $('#selectedCount');
 const searchInput = $('#searchInput');
 const clearAllBtn = $('#clearAllBtn');
 const printRoot = $('#printRoot');
@@ -47,6 +48,10 @@ function findMember(id) {
   return members.find(member => member.id === id);
 }
 
+function selectedMembers() {
+  return members.filter(member => selectedIds.has(member.id));
+}
+
 function searchText(member) {
   return `${member.nameJa} ${member.nameEn} ${member.badgeText}`.toLocaleLowerCase('ja');
 }
@@ -61,8 +66,10 @@ function isVisibleMember(member) {
 }
 
 function updateSelectionUi() {
-  selectedCount.textContent = String(selectedIds.size);
-  printBtn.disabled = selectedIds.size === 0;
+  const hasSelection = selectedIds.size > 0;
+  photoExportBtn.disabled = !hasSelection;
+  printBtn.disabled = !hasSelection;
+  clearAllBtn.disabled = !hasSelection;
 }
 
 function setBandColor(member, row, color) {
@@ -151,8 +158,50 @@ function clearAllSelections() {
   updateSelectionUi();
 }
 
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportSelectedPhotos() {
+  const selected = selectedMembers();
+  if (!selected.length) return;
+
+  photoExportBtn.disabled = true;
+  const originalText = photoExportBtn.textContent;
+  photoExportBtn.textContent = '作成中…';
+
+  try {
+    const files = [];
+    for (const member of selected) {
+      const response = await fetch(assetUrl(member.photo), { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(`${member.filename || member.nameJa} の取得に失敗しました (${response.status})`);
+      }
+      files.push({
+        name: member.filename || member.photo.split('/').pop() || `${member.nameJa}.png`,
+        data: new Uint8Array(await response.arrayBuffer()),
+      });
+    }
+
+    triggerDownload(createZip(files), '顔写真.zip');
+  } catch (error) {
+    console.error(error);
+    alert(error.message || '顔写真ZIPの作成に失敗しました。');
+  } finally {
+    photoExportBtn.textContent = originalText;
+    updateSelectionUi();
+  }
+}
+
 async function loadMembers() {
-  const dataUrl = new URL('../data/members.json?v=10', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=11', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`会員一覧の取得に失敗しました (${response.status})`);
@@ -172,9 +221,10 @@ async function loadMembers() {
 
 searchInput.addEventListener('input', applySearch);
 clearAllBtn.addEventListener('click', clearAllSelections);
+photoExportBtn.addEventListener('click', exportSelectedPhotos);
 
 printBtn.addEventListener('click', () => {
-  const selected = members.filter(member => selectedIds.has(member.id));
+  const selected = selectedMembers();
   if (!selected.length) return;
   buildPrintPages(printRoot, selected);
   requestAnimationFrame(() => window.print());

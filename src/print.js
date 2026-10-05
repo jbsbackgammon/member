@@ -1,7 +1,7 @@
 function textColorFor(hex) {
-  if (!hex) return '#ffffff';
+  if (!hex) return '#000000';
   const normalized = hex.replace('#', '');
-  if (!/^[0-9a-f]{6}$/i.test(normalized)) return '#ffffff';
+  if (!/^[0-9a-f]{6}$/i.test(normalized)) return '#000000';
   const r = parseInt(normalized.slice(0, 2), 16);
   const g = parseInt(normalized.slice(2, 4), 16);
   const b = parseInt(normalized.slice(4, 6), 16);
@@ -55,10 +55,11 @@ export function buildPrintPages(root, members) {
 
         if (member.badgeText) {
           const band = document.createElement('div');
-          band.className = `badge-band${bandClass(member.badgeText)}`;
-          const bg = member.bandColor || '#000000';
-          band.style.backgroundColor = bg;
-          band.style.color = textColorFor(bg);
+          band.className = `badge-band${bandClass(member.badgeText)}${member.bandColor ? '' : ' no-color'}`;
+          if (member.bandColor) {
+            band.style.backgroundColor = member.bandColor;
+            band.style.color = textColorFor(member.bandColor);
+          }
           band.textContent = member.badgeText;
           cell.appendChild(band);
         }

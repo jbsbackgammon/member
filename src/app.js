@@ -9,7 +9,6 @@ const template = $('#memberRowTemplate');
 const printBtn = $('#printBtn');
 const selectedCount = $('#selectedCount');
 const searchInput = $('#searchInput');
-const selectVisibleBtn = $('#selectVisibleBtn');
 const printRoot = $('#printRoot');
 
 let members = [];
@@ -17,7 +16,7 @@ const selectedIds = new Set();
 
 function normalizeColor(value) {
   const color = String(value || '').trim();
-  return /^#[0-9a-f]{6}$/i.test(color) ? color : '';
+  return /^#[0-9a-f]{6}$/i.test(color) ? color.toLowerCase() : '';
 }
 
 function normalizePhotoPath(value) {
@@ -25,19 +24,12 @@ function normalizePhotoPath(value) {
 }
 
 function normalizeMember(raw, index) {
-  const photos = Array.isArray(raw?.photos)
-    ? raw.photos.map(normalizePhotoPath).filter(Boolean)
-    : [];
-
-  const mainPhoto = normalizePhotoPath(raw?.mainPhoto);
-
   return {
     id: String(raw?.id || `member-${index + 1}`),
     sortIndex: Number.isFinite(raw?.sortIndex) ? raw.sortIndex : index,
     nameJa: String(raw?.name ?? raw?.nameJa ?? '').trim(),
     nameEn: String(raw?.nameEn ?? '').trim(),
-    photos,
-    mainPhoto: mainPhoto || photos[0] || '',
+    photo: normalizePhotoPath(raw?.photo),
     badgeText: String(raw?.badgeText ?? '').trim(),
     bandColor: normalizeColor(raw?.bandColor),
   };
@@ -70,69 +62,30 @@ function isVisibleMember(member) {
 function updateSelectionUi() {
   selectedCount.textContent = String(selectedIds.size);
   printBtn.disabled = selectedIds.size === 0;
-
-  const visible = members.filter(isVisibleMember);
-  const allVisibleSelected = visible.length > 0 && visible.every(member => selectedIds.has(member.id));
-  selectVisibleBtn.textContent = allVisibleSelected ? '表示中を全解除' : '表示中を全選択';
 }
 
 function setBandColor(member, row, color) {
   member.bandColor = normalizeColor(color);
-  const colorInput = $('.band-color', row);
-  if (member.bandColor) colorInput.value = member.bandColor;
 
-  $('.color-none', row).classList.toggle('active', !member.bandColor);
   row.querySelectorAll('.color-presets button').forEach(button => {
-    button.classList.toggle(
-      'active',
-      !!member.bandColor && button.dataset.color.toLowerCase() === member.bandColor.toLowerCase(),
-    );
+    const buttonColor = normalizeColor(button.dataset.color);
+    button.classList.toggle('active', buttonColor === member.bandColor);
   });
 }
 
-function renderPhotos(member, row) {
-  const strip = $('.photo-strip', row);
-  const mainImg = $('.main-photo', row);
+function renderPhoto(member, row) {
+  const image = $('.member-photo', row);
   const placeholder = $('.photo-placeholder', row);
-  const mainLabel = $('.main-photo-label', row);
-  const mainPhoto = member.mainPhoto || member.photos[0] || '';
 
-  strip.replaceChildren();
-  $('.photo-count', row).textContent = `${member.photos.length}枚`;
-
-  if (mainPhoto) {
-    mainImg.src = assetUrl(mainPhoto);
-    mainImg.hidden = false;
+  if (member.photo) {
+    image.src = assetUrl(member.photo);
+    image.hidden = false;
     placeholder.hidden = true;
-    mainLabel.hidden = false;
   } else {
-    mainImg.removeAttribute('src');
-    mainImg.hidden = true;
+    image.removeAttribute('src');
+    image.hidden = true;
     placeholder.hidden = false;
-    mainLabel.hidden = true;
   }
-
-  member.photos.forEach(photo => {
-    const thumb = document.createElement('div');
-    const isMain = photo === mainPhoto;
-    thumb.className = `photo-thumb${isMain ? ' main' : ''}`;
-    thumb.title = isMain ? 'メイン画像' : '顔写真';
-
-    const img = document.createElement('img');
-    img.src = assetUrl(photo);
-    img.alt = isMain ? 'メイン顔写真' : '顔写真';
-    thumb.appendChild(img);
-
-    if (isMain) {
-      const mark = document.createElement('span');
-      mark.className = 'photo-main-mark';
-      mark.textContent = '★';
-      mark.setAttribute('aria-label', 'メイン画像');
-      thumb.appendChild(mark);
-    }
-
-    strip.appendChild(thumb);
-  });
 }
 
 function bindMemberRow(member, row) {
@@ -143,13 +96,11 @@ function bindMemberRow(member, row) {
 
   const printCheck = $('.print-check', row);
   const badgeText = $('.badge-text', row);
-  const colorInput = $('.band-color', row);
 
   printCheck.checked = selectedIds.has(member.id);
   badgeText.value = member.badgeText;
-  if (member.bandColor) colorInput.value = member.bandColor;
 
-  renderPhotos(member, row);
+  renderPhoto(member, row);
   setBandColor(member, row, member.bandColor);
 
   printCheck.addEventListener('change', () => {
@@ -163,8 +114,6 @@ function bindMemberRow(member, row) {
     applySearch();
   });
 
-  $('.color-none', row).addEventListener('click', () => setBandColor(member, row, ''));
-  colorInput.addEventListener('input', () => setBandColor(member, row, colorInput.value));
   row.querySelectorAll('.color-presets button').forEach(button => {
     button.addEventListener('click', () => setBandColor(member, row, button.dataset.color));
   });
@@ -209,22 +158,6 @@ async function loadMembers() {
 }
 
 searchInput.addEventListener('input', applySearch);
-
-selectVisibleBtn.addEventListener('click', () => {
-  const visible = members.filter(isVisibleMember);
-  const allSelected = visible.length > 0 && visible.every(member => selectedIds.has(member.id));
-
-  visible.forEach(member => {
-    if (allSelected) selectedIds.delete(member.id);
-    else selectedIds.add(member.id);
-  });
-
-  for (const row of listEl.children) {
-    $('.print-check', row).checked = selectedIds.has(row.dataset.memberId);
-  }
-
-  updateSelectionUi();
-});
 
 printBtn.addEventListener('click', () => {
   const selected = members.filter(member => selectedIds.has(member.id));

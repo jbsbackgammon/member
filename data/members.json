@@ -6,10 +6,7 @@
       "sortIndex": 0,
       "name": "柳 暢祐",
       "nameEn": "YANAGI Nobusuke",
-      "photos": [
-        "images/yanagi-nobusuke/01.png"
-      ],
-      "mainPhoto": "images/yanagi-nobusuke/01.png",
+      "photo": "images/yanagi-nobusuke/01.png",
       "badgeText": "",
       "bandColor": ""
     }

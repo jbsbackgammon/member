@@ -10,11 +10,8 @@
 </head>
 <body>
   <header class="app-header">
-    <div>
-      <h1>会員情報</h1>
-    </div>
+    <h1>会員情報</h1>
     <div class="header-actions">
-      <button id="addMemberBtn" class="button primary" type="button">＋ 会員追加</button>
       <button id="printBtn" class="button" type="button" disabled>名札PDF出力 <span id="selectedCount">0</span>名</button>
     </div>
   </header>
@@ -27,16 +24,7 @@
       </label>
       <div class="toolbar-spacer"></div>
       <button id="selectVisibleBtn" class="button small" type="button">表示中を全選択</button>
-      <button id="exportBtn" class="button small" type="button">JSONバックアップ</button>
-      <label class="button small file-button">
-        JSON読込
-        <input id="importInput" type="file" accept="application/json,.json" hidden>
-      </label>
     </section>
-
-    <div class="storage-note">
-      データと顔写真はこのブラウザ内に保存されます。共有端末や別ブラウザへ移す場合は「JSONバックアップ」を利用してください。
-    </div>
 
     <section class="member-list-wrap">
       <div class="member-list-head" aria-hidden="true">
@@ -46,32 +34,31 @@
         <div class="col-check">名札出力</div>
         <div class="col-badge">名札文言</div>
         <div class="col-color">名札帯色</div>
-        <div class="col-actions">操作</div>
       </div>
       <div id="memberList" class="member-list"></div>
       <div id="emptyState" class="empty-state" hidden>
-        <strong>会員が登録されていません。</strong>
-        <span>「会員追加」から登録してください。</span>
+        <strong id="emptyTitle">会員情報がありません。</strong>
+        <span id="emptyMessage">data/members.json を確認してください。</span>
       </div>
     </section>
   </main>
 
   <template id="memberRowTemplate">
     <article class="member-row">
-      <div class="col-name field-cell">
-        <label>名前<input class="name-ja" type="text" autocomplete="off" placeholder="柳 暢祐"></label>
+      <div class="col-name text-cell">
+        <div class="member-name-ja"></div>
       </div>
-      <div class="col-en field-cell">
-        <label>名前英語<input class="name-en" type="text" autocomplete="off" placeholder="YANAGI Nobusuke"></label>
+      <div class="col-en text-cell">
+        <div class="member-name-en"></div>
       </div>
       <div class="col-photo photo-cell">
         <div class="main-photo-wrap">
           <img class="main-photo" alt="メイン顔写真" hidden>
           <div class="photo-placeholder">PHOTO</div>
         </div>
-        <div class="photo-actions">
-          <label class="button tiny file-button">画像追加<input class="photo-input" type="file" accept="image/*" multiple hidden></label>
+        <div class="photo-meta">
           <span class="photo-count">0枚</span>
+          <span class="main-photo-label" hidden>MAIN</span>
         </div>
         <div class="photo-strip" aria-label="登録画像"></div>
       </div>
@@ -96,9 +83,6 @@
           <button type="button" data-color="#b42893" title="紫"></button>
           <button type="button" data-color="#000000" title="黒"></button>
         </div>
-      </div>
-      <div class="col-actions row-actions">
-        <button class="delete-member danger-link" type="button">削除</button>
       </div>
     </article>
   </template>

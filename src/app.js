@@ -201,7 +201,7 @@ async function exportSelectedPhotos() {
 }
 
 async function loadMembers() {
-  const dataUrl = new URL('../data/members.json?v=12', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=13', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`会員一覧の取得に失敗しました (${response.status})`);
@@ -226,9 +226,15 @@ async function loadMembers() {
     .map(normalizeMember)
     .filter(member => member.nameJa && member.nameEn && member.photo)
     .sort((a, b) => {
+      const aForeign = isForeignMember(a);
+      const bForeign = isForeignMember(b);
+
+      // 日本語名の会員を先に、英語名の会員を後ろにまとめる。
+      if (aForeign !== bForeign) return aForeign ? 1 : -1;
+
       const byAlphabet = sortKey(a).localeCompare(sortKey(b), 'en', { sensitivity: 'base', numeric: true });
       if (byAlphabet !== 0) return byAlphabet;
-      return a.nameJa.localeCompare(b.nameJa, 'ja');
+      return a.nameJa.localeCompare(b.nameJa, aForeign ? 'en' : 'ja');
     });
 }
 

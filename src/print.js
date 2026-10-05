@@ -9,20 +9,33 @@ function textColorFor(hex) {
   return luminance > 0.62 ? '#000000' : '#ffffff';
 }
 
+function isForeignName(text) {
+  const value = String(text || '');
+  const hasLatin = /[A-Za-z]/.test(value);
+  const hasJapanese = /[\u3040-\u30ff\u3400-\u9fff]/.test(value);
+  return hasLatin && !hasJapanese;
+}
+
 function nameClass(text, isEnglish = false) {
-  const length = [...(text || '')].length;
-  if (isEnglish) {
-    if (length >= 28) return ' compact-more';
-    if (length >= 20) return ' compact';
-  } else {
-    if (length >= 12) return ' compact-more';
-    if (length >= 9) return ' compact';
-  }
+  const value = String(text || '');
+  if (isEnglish) return '';
+
+  if (isForeignName(value)) return ' foreign';
+
+  const length = [...value.replace(/\s/g, '')].length;
+  if (length >= 7) return ' compact-more';
   return '';
 }
 
 function bandClass(text) {
-  return [...(text || '')].length >= 17 ? ' compact' : '';
+  const value = String(text || '');
+  const weightedLength = [...value].reduce((sum, ch) => {
+    return sum + (/[A-Za-z0-9'"‘’･・.\-]/.test(ch) ? 0.55 : 1);
+  }, 0);
+
+  if (weightedLength >= 13.5) return ' compact-more';
+  if (weightedLength >= 11.5) return ' compact';
+  return '';
 }
 
 export function buildPrintPages(root, members) {

@@ -1,4 +1,4 @@
-import { buildPrintPages } from './print.js';
+import { buildPrintPages } from './print.js?v=20';
 import { createZip } from './zip.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);

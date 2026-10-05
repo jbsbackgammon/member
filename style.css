@@ -329,20 +329,33 @@ input[type="text"]:focus, input[type="search"]:focus {
 @page { size: A4 portrait; margin: 0; }
 
 @media print {
-  html, body { width: 210mm; background: #fff !important; }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    background: #fff !important;
+  }
   body > *:not(.print-root) { display: none !important; }
+
   .print-root {
     display: block !important;
     width: 210mm;
     margin: 0;
     padding: 0;
   }
+
+  /*
+   * A4縦を上下余白なしで5等分。
+   * 横幅は添付名札の実寸に合わせて 91mm × 2列とし、
+   * A4右側に28mmの余白を残す。
+   */
   .badge-page {
+    position: relative;
     width: 210mm;
     height: 297mm;
     display: grid;
-    grid-template-columns: 95.25mm 95.25mm;
-    grid-template-rows: repeat(5, 55.03mm);
+    grid-template-columns: 91mm 91mm;
+    grid-template-rows: repeat(5, 59.4mm);
     justify-content: start;
     align-content: start;
     page-break-after: always;
@@ -350,54 +363,77 @@ input[type="text"]:focus, input[type="search"]:focus {
     overflow: hidden;
     background: #fff;
   }
-  .badge-page:last-child { page-break-after: auto; break-after: auto; }
+  .badge-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
   .badge-cell {
-    width: 95.25mm;
-    height: 55.03mm;
-    border-right: .2mm solid #cfcfcf;
-    border-bottom: .2mm solid #cfcfcf;
+    width: 91mm;
+    height: 59.4mm;
+    display: grid;
+    grid-template-rows: 35.64mm 11.88mm 11.88mm;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: stretch;
     text-align: center;
     background: #fff;
+    border-right: .2mm solid #cfcfcf;
+    border-bottom: .2mm solid #cfcfcf;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  /* 外周と区切り線がページ端でも消えないよう明示 */
   .badge-cell:nth-child(-n+2) { border-top: .2mm solid #cfcfcf; }
   .badge-cell:nth-child(odd) { border-left: .2mm solid #cfcfcf; }
+
   .badge-name {
-    padding: 0 4mm;
-    font-size: 30pt;
+    grid-row: 1;
+    min-width: 0;
+    padding: 0 2.54mm 1.27mm;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-size: 44pt;
     font-weight: 800;
-    line-height: 1.04;
-    letter-spacing: .01em;
+    line-height: .98;
+    letter-spacing: 0;
     word-break: keep-all;
     overflow-wrap: normal;
+    overflow: hidden;
   }
-  .badge-name.compact { font-size: 25pt; }
-  .badge-name.compact-more { font-size: 21pt; }
+  .badge-name.foreign { font-size: 40pt; }
+  .badge-name.compact { font-size: 40pt; }
+  .badge-name.compact-more { font-size: 36pt; }
+
   .badge-en {
-    margin-top: 2mm;
-    padding: 0 4mm;
-    font-size: 16pt;
-    font-weight: 800;
-    line-height: 1.03;
-    letter-spacing: .01em;
-    overflow-wrap: anywhere;
-  }
-  .badge-en.compact { font-size: 14pt; }
-  .badge-en.compact-more { font-size: 12pt; }
-  .badge-band {
-    min-height: 7mm;
-    margin-top: 1.8mm;
-    padding: .8mm 2mm .7mm;
+    grid-row: 2;
+    min-width: 0;
+    margin: 0;
+    padding: 0 2.54mm;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12.5pt;
+    font-size: 20pt;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .badge-en.compact,
+  .badge-en.compact-more { font-size: 20pt; }
+
+  .badge-band {
+    grid-row: 3;
+    width: 100%;
+    height: 11.88mm;
+    min-height: 0;
+    margin: 0;
+    padding: 0 2.54mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20pt;
     line-height: 1;
     font-weight: 800;
     overflow: hidden;
@@ -405,10 +441,12 @@ input[type="text"]:focus, input[type="search"]:focus {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .badge-band.compact { font-size: 10.5pt; }
+  .badge-band.compact { font-size: 18pt; }
+  .badge-band.compact-more { font-size: 16pt; }
   .badge-band.no-color {
     background: transparent;
     color: #000;
   }
+
   .badge-empty { background: #fff; }
 }

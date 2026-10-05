@@ -201,7 +201,7 @@ async function exportSelectedPhotos() {
 }
 
 async function loadMembers() {
-  const dataUrl = new URL('../data/members.json?v=11', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=12', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`会員一覧の取得に失敗しました (${response.status})`);
@@ -213,10 +213,23 @@ async function loadMembers() {
     throw new Error('自動生成された会員一覧の形式が正しくありません。');
   }
 
+  const isForeignMember = member => {
+    const name = member.nameJa;
+    const hasLatin = /[A-Za-z]/.test(name);
+    const hasJapanese = /[\u3040-\u30ff\u3400-\u9fff]/.test(name);
+    return hasLatin && !hasJapanese;
+  };
+
+  const sortKey = member => isForeignMember(member) ? member.nameJa : member.nameEn;
+
   members = source
     .map(normalizeMember)
     .filter(member => member.nameJa && member.nameEn && member.photo)
-    .sort((a, b) => a.nameJa.localeCompare(b.nameJa, 'ja'));
+    .sort((a, b) => {
+      const byAlphabet = sortKey(a).localeCompare(sortKey(b), 'en', { sensitivity: 'base', numeric: true });
+      if (byAlphabet !== 0) return byAlphabet;
+      return a.nameJa.localeCompare(b.nameJa, 'ja');
+    });
 }
 
 searchInput.addEventListener('input', applySearch);

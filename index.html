@@ -40,12 +40,12 @@
 
     <section class="member-list-wrap">
       <div class="member-list-head" aria-hidden="true">
-        <div class="col-check">出力</div>
-        <div class="col-photo">顔写真</div>
         <div class="col-name">名前</div>
         <div class="col-en">名前英語</div>
+        <div class="col-photo">顔写真</div>
+        <div class="col-check">名札出力</div>
         <div class="col-badge">名札文言</div>
-        <div class="col-color">帯色</div>
+        <div class="col-color">名札帯色</div>
         <div class="col-actions">操作</div>
       </div>
       <div id="memberList" class="member-list"></div>
@@ -58,11 +58,11 @@
 
   <template id="memberRowTemplate">
     <article class="member-row">
-      <div class="col-check field-check">
-        <label class="print-check-label" title="名札出力対象にする">
-          <input class="print-check" type="checkbox">
-          <span>名札</span>
-        </label>
+      <div class="col-name field-cell">
+        <label>名前<input class="name-ja" type="text" autocomplete="off" placeholder="柳 暢祐"></label>
+      </div>
+      <div class="col-en field-cell">
+        <label>名前英語<input class="name-en" type="text" autocomplete="off" placeholder="YANAGI Nobusuke"></label>
       </div>
       <div class="col-photo photo-cell">
         <div class="main-photo-wrap">
@@ -75,11 +75,11 @@
         </div>
         <div class="photo-strip" aria-label="登録画像"></div>
       </div>
-      <div class="col-name field-cell">
-        <label>名前<input class="name-ja" type="text" autocomplete="off" placeholder="柳 暢祐"></label>
-      </div>
-      <div class="col-en field-cell">
-        <label>名前英語<input class="name-en" type="text" autocomplete="off" placeholder="YANAGI Nobusuke"></label>
+      <div class="col-check field-check">
+        <label class="print-check-label" title="名札出力対象にする">
+          <input class="print-check" type="checkbox">
+          <span>名札</span>
+        </label>
       </div>
       <div class="col-badge field-cell">
         <label>名札文言<input class="badge-text" type="text" autocomplete="off" placeholder="大会スタッフ"></label>

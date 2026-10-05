@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Build member list
+        run: python3 scripts/build-members.py
+
       - name: Configure Pages
         uses: actions/configure-pages@v6
 

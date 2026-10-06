@@ -485,9 +485,18 @@ function exportJsonSettings() {
   };
 
   const json = JSON.stringify(payload, null, 2) + '\n';
+  const now = new Date();
+  const pad = value => String(value).padStart(2, '0');
+  const timestamp =
+    `${now.getFullYear()}` +
+    `${pad(now.getMonth() + 1)}` +
+    `${pad(now.getDate())}` +
+    `${pad(now.getHours())}` +
+    `${pad(now.getMinutes())}` +
+    `${pad(now.getSeconds())}`;
   triggerDownload(
     new Blob([json], { type: 'application/json;charset=utf-8' }),
-    '選手素材設定.json'
+    `member_${timestamp}.json`
   );
 }
 

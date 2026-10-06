@@ -385,15 +385,15 @@ input[type="text"]:focus, input[type="search"]:focus {
     overflow: hidden;
     text-align: center;
     background: #fff;
-    border-right: .25mm solid #cfcfcf;
-    border-bottom: .25mm solid #cfcfcf;
+    border-right: .3mm solid #cfcfcf;
+    border-bottom: .3mm solid #cfcfcf;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   /* 外周と区切り線がページ端でも消えないよう明示 */
-  .badge-cell:nth-child(-n+2) { border-top: .25mm solid #cfcfcf; }
-  .badge-cell:nth-child(odd) { border-left: .25mm solid #cfcfcf; }
+  .badge-cell:nth-child(-n+2) { border-top: .3mm solid #cfcfcf; }
+  .badge-cell:nth-child(odd) { border-left: .3mm solid #cfcfcf; }
 
   .badge-name {
     grid-row: 1;

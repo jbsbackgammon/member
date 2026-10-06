@@ -471,6 +471,18 @@ async function exportSelectedPhotos() {
   photoExportBtn.textContent = '作成中…';
 
   try {
+    if (selected.length === 1) {
+      const member = selected[0];
+      const response = await fetch(assetUrl(member.photo), { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(`${member.filename || member.nameJa} の取得に失敗しました (${response.status})`);
+      }
+
+      const filename = member.filename || member.photo.split('/').pop() || `${member.nameJa}.png`;
+      triggerDownload(await response.blob(), filename);
+      return;
+    }
+
     const files = [];
     for (const member of selected) {
       const response = await fetch(assetUrl(member.photo), { cache: 'no-store' });
@@ -486,7 +498,7 @@ async function exportSelectedPhotos() {
     triggerDownload(createZip(files), '顔写真.zip');
   } catch (error) {
     console.error(error);
-    alert(error.message || '顔写真ZIPの作成に失敗しました。');
+    alert(error.message || '顔写真の出力に失敗しました。');
   } finally {
     photoExportBtn.textContent = originalText;
     updateSelectionUi();

@@ -32,6 +32,192 @@ function isForeignMember(member) {
   return hasLatin && !hasJapanese;
 }
 
+function katakanaToHiragana(value) {
+  return String(value || '').replace(/[\u30a1-\u30f6]/g, ch =>
+    String.fromCharCode(ch.charCodeAt(0) - 0x60)
+  );
+}
+
+const ROMAJI_TO_HIRAGANA = new Map(Object.entries({
+  kya:'きゃ', kyu:'きゅ', kyo:'きょ',
+  gya:'ぎゃ', gyu:'ぎゅ', gyo:'ぎょ',
+  sha:'しゃ', shu:'しゅ', sho:'しょ',
+  sya:'しゃ', syu:'しゅ', syo:'しょ',
+  ja:'じゃ', ju:'じゅ', jo:'じょ',
+  jya:'じゃ', jyu:'じゅ', jyo:'じょ',
+  cha:'ちゃ', chu:'ちゅ', cho:'ちょ',
+  cya:'ちゃ', cyu:'ちゅ', cyo:'ちょ',
+  tya:'ちゃ', tyu:'ちゅ', tyo:'ちょ',
+  nya:'にゃ', nyu:'にゅ', nyo:'にょ',
+  hya:'ひゃ', hyu:'ひゅ', hyo:'ひょ',
+  bya:'びゃ', byu:'びゅ', byo:'びょ',
+  pya:'ぴゃ', pyu:'ぴゅ', pyo:'ぴょ',
+  mya:'みゃ', myu:'みゅ', myo:'みょ',
+  rya:'りゃ', ryu:'りゅ', ryo:'りょ',
+  fa:'ふぁ', fi:'ふぃ', fe:'ふぇ', fo:'ふぉ',
+  va:'ゔぁ', vi:'ゔぃ', vu:'ゔ', ve:'ゔぇ', vo:'ゔぉ',
+  shi:'し', chi:'ち', tsu:'つ',
+  si:'し', ti:'ち', tu:'つ', hu:'ふ',
+  ji:'じ', zi:'じ',
+  a:'あ', i:'い', u:'う', e:'え', o:'お',
+  ka:'か', ki:'き', ku:'く', ke:'け', ko:'こ',
+  ga:'が', gi:'ぎ', gu:'ぐ', ge:'げ', go:'ご',
+  sa:'さ', su:'す', se:'せ', so:'そ',
+  za:'ざ', zu:'ず', ze:'ぜ', zo:'ぞ',
+  ta:'た', te:'て', to:'と',
+  da:'だ', di:'ぢ', du:'づ', de:'で', do:'ど',
+  na:'な', ni:'に', nu:'ぬ', ne:'ね', no:'の',
+  ha:'は', hi:'ひ', fu:'ふ', he:'へ', ho:'ほ',
+  ba:'ば', bi:'び', bu:'ぶ', be:'べ', bo:'ぼ',
+  pa:'ぱ', pi:'ぴ', pu:'ぷ', pe:'ぺ', po:'ぽ',
+  ma:'ま', mi:'み', mu:'む', me:'め', mo:'も',
+  ya:'や', yu:'ゆ', yo:'よ',
+  ra:'ら', ri:'り', ru:'る', re:'れ', ro:'ろ',
+  wa:'わ', wi:'ゐ', we:'ゑ', wo:'を',
+  n:'ん'
+}));
+
+function normalizeRomaji(value) {
+  return String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’']/g, "'")
+    .replace(/[^A-Za-z'-]/g, '')
+    .toLowerCase();
+}
+
+function romajiToHiragana(value) {
+  let source = normalizeRomaji(value);
+  if (!source) return '';
+
+  source = source
+    .replace(/ō/g, 'o')
+    .replace(/ū/g, 'u')
+    .replace(/ā/g, 'a')
+    .replace(/ī/g, 'i')
+    .replace(/ē/g, 'e');
+
+  let result = '';
+  let i = 0;
+
+  while (i < source.length) {
+    if (source[i] === '-' || source[i] === "'") {
+      i += 1;
+      continue;
+    }
+
+    // Hepburn の長音表記 "oh"（例: Ohno）を「お」と同等に扱う。
+    if (i > 0 && source[i] === 'h' && source[i - 1] === 'o') {
+      i += 1;
+      continue;
+    }
+
+    // 促音: Hattori -> はっとり
+    if (
+      i + 1 < source.length &&
+      source[i] === source[i + 1] &&
+      /[bcdfghjklmpqrstvwxyz]/.test(source[i]) &&
+      source[i] !== 'n'
+    ) {
+      result += 'っ';
+      i += 1;
+      continue;
+    }
+
+    // 撥音の m 表記: Namba -> なんば
+    if (
+      source[i] === 'm' &&
+      i + 1 < source.length &&
+      /[bmp]/.test(source[i + 1])
+    ) {
+      result += 'ん';
+      i += 1;
+      continue;
+    }
+
+    // n が母音/y以外の前、または語末なら「ん」。
+    if (
+      source[i] === 'n' &&
+      (
+        i === source.length - 1 ||
+        source[i + 1] === "'" ||
+        !/[aiueoy]/.test(source[i + 1])
+      )
+    ) {
+      result += 'ん';
+      i += 1;
+      if (source[i] === "'") i += 1;
+      continue;
+    }
+
+    let matched = false;
+    for (const length of [3, 2, 1]) {
+      const part = source.slice(i, i + length);
+      const kana = ROMAJI_TO_HIRAGANA.get(part);
+      if (kana) {
+        result += kana;
+        i += length;
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) return '';
+  }
+
+  return result;
+}
+
+function japaneseSurnameText(member) {
+  return String(member.nameJa || '').trim().split(/\s+/)[0] || '';
+}
+
+function inferJapaneseSurnameRomaji(member) {
+  const tokens = String(member.nameEn || '')
+    .trim()
+    .split(/\s+/)
+    .map(token => token.replace(/^[^A-Za-z]+|[^A-Za-z'-]+$/g, ''))
+    .filter(Boolean);
+
+  if (!tokens.length) return '';
+
+  // 現行データの「MIZUTANI Sam」のような姓の大文字表記を最優先。
+  const uppercaseSurname = tokens.find(token =>
+    /[A-Z]/.test(token) &&
+    token === token.toUpperCase() &&
+    /^[A-Z'-]+$/.test(token)
+  );
+  if (uppercaseSurname) return uppercaseSurname;
+
+  // "Miho Oka Macleod" のような表記では、
+  // ローマ字として日本語読みできる語のうち最後のものを姓とみなす。
+  const japaneseLikeTokens = tokens.filter(token => romajiToHiragana(token));
+  if (japaneseLikeTokens.length) {
+    return japaneseLikeTokens[japaneseLikeTokens.length - 1];
+  }
+
+  return tokens[0];
+}
+
+function japaneseSurnameSortKey(member) {
+  const surnameJa = japaneseSurnameText(member);
+
+  // ひらがな・カタカナの姓は日本語表記そのものを読みとして使う。
+  if (surnameJa && /^[\u3040-\u30ffー]+$/.test(surnameJa)) {
+    return katakanaToHiragana(surnameJa);
+  }
+
+  const surnameRomaji = inferJapaneseSurnameRomaji(member);
+  return romajiToHiragana(surnameRomaji) || surnameRomaji.toLocaleLowerCase('en');
+}
+
+function foreignFirstNameSortKey(member) {
+  return String(member.nameJa || '')
+    .trim()
+    .split(/\s+/)[0]
+    .toLocaleLowerCase('en');
+}
+
 function normalizeMatchText(value) {
   return String(value || '')
     .normalize('NFKC')
@@ -308,7 +494,7 @@ async function exportSelectedPhotos() {
 }
 
 async function loadMembers() {
-  const dataUrl = new URL('../data/members.json?v=26', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=28', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`会員一覧の取得に失敗しました (${response.status})`);
@@ -320,14 +506,8 @@ async function loadMembers() {
     throw new Error('自動生成された会員一覧の形式が正しくありません。');
   }
 
-  const isForeignMember = member => {
-    const name = member.nameJa;
-    const hasLatin = /[A-Za-z]/.test(name);
-    const hasJapanese = /[\u3040-\u30ff\u3400-\u9fff]/.test(name);
-    return hasLatin && !hasJapanese;
-  };
-
-  const sortKey = member => isForeignMember(member) ? member.nameJa : member.nameEn;
+  const jaCollator = new Intl.Collator('ja', { sensitivity: 'base', numeric: true });
+  const enCollator = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
 
   members = source
     .map(normalizeMember)
@@ -336,12 +516,31 @@ async function loadMembers() {
       const aForeign = isForeignMember(a);
       const bForeign = isForeignMember(b);
 
-      // 日本語名の会員を先に、英語名の会員を後ろにまとめる。
+      // 日本語名の選手を先に、英語名のみの選手を後ろにまとめる。
       if (aForeign !== bForeign) return aForeign ? 1 : -1;
 
-      const byAlphabet = sortKey(a).localeCompare(sortKey(b), 'en', { sensitivity: 'base', numeric: true });
-      if (byAlphabet !== 0) return byAlphabet;
-      return a.nameJa.localeCompare(b.nameJa, aForeign ? 'en' : 'ja');
+      if (!aForeign) {
+        // 日本人: 日本語名で姓を特定し、英語表記から姓のローマ字を推定。
+        // その読みをひらがな化して五十音順に並べる。
+        const bySurname = jaCollator.compare(
+          japaneseSurnameSortKey(a),
+          japaneseSurnameSortKey(b)
+        );
+        if (bySurname !== 0) return bySurname;
+
+        // 同姓の場合は英語名→日本語名で安定ソート。
+        const byEnglish = enCollator.compare(a.nameEn, b.nameEn);
+        if (byEnglish !== 0) return byEnglish;
+        return jaCollator.compare(a.nameJa, b.nameJa);
+      }
+
+      // 英語名のみ: ファーストネーム（先頭語）でABC順。
+      const byFirstName = enCollator.compare(
+        foreignFirstNameSortKey(a),
+        foreignFirstNameSortKey(b)
+      );
+      if (byFirstName !== 0) return byFirstName;
+      return enCollator.compare(a.nameJa, b.nameJa);
     });
 }
 

@@ -10,6 +10,7 @@ const template = $('#memberRowTemplate');
 const photoExportBtn = $('#photoExportBtn');
 const printBtn = $('#printBtn');
 const searchInput = $('#searchInput');
+const selectionCount = $('#selectionCount');
 const inputSelectBtn = $('#inputSelectBtn');
 const selectAllBtn = $('#selectAllBtn');
 const clearAllBtn = $('#clearAllBtn');
@@ -112,6 +113,7 @@ function isVisibleMember(member) {
 function updateSelectionUi() {
   const hasMembers = members.length > 0;
   const hasSelection = selectedIds.size > 0;
+  selectionCount.textContent = `選択${selectedIds.size}名`;
   inputSelectBtn.disabled = !hasMembers;
   selectAllBtn.disabled = !hasMembers;
   photoExportBtn.disabled = !hasSelection;
@@ -306,7 +308,7 @@ async function exportSelectedPhotos() {
 }
 
 async function loadMembers() {
-  const dataUrl = new URL('../data/members.json?v=19', import.meta.url);
+  const dataUrl = new URL('../data/members.json?v=26', import.meta.url);
   const response = await fetch(dataUrl, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`会員一覧の取得に失敗しました (${response.status})`);

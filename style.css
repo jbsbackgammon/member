@@ -29,6 +29,14 @@ button { cursor: pointer; }
 }
 
 .header-actions { display: flex; gap: 8px; align-items: center; }
+.selection-count {
+  min-width: 64px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #30343a;
+  text-align: right;
+  white-space: nowrap;
+}
 .header-search { width: min(300px, 28vw); }
 .header-search::placeholder { color: #9aa1ab; opacity: 1; }
 
@@ -321,7 +329,8 @@ input[type="text"]:focus, input[type="search"]:focus {
     gap: 6px;
   }
   .header-actions { width: 100%; flex-wrap: wrap; }
-  .header-search { width: 100%; min-width: 0; flex-basis: 100%; }
+  .selection-count { min-width: auto; text-align: left; }
+  .header-search { width: auto; min-width: 0; flex: 1 1 180px; }
   .header-actions .button { flex: 1 1 auto; }
   .app-main { width: calc(100% - 20px); margin-top: 10px; }
 }

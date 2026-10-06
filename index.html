@@ -6,11 +6,12 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#ffffff">
   <title>選手素材</title>
-  <link rel="stylesheet" href="./style.css?v=23">
+  <link rel="stylesheet" href="./style.css?v=26">
 </head>
 <body>
   <header class="app-header">
     <div class="header-actions">
+      <div id="selectionCount" class="selection-count" aria-live="polite">選択0名</div>
       <input id="searchInput" class="header-search" type="search" autocomplete="off" placeholder="検索" aria-label="検索">
       <button id="inputSelectBtn" class="button" type="button" disabled>入力選択</button>
       <button id="selectAllBtn" class="button" type="button" disabled>全選択</button>
@@ -95,6 +96,6 @@
 
   <div id="printRoot" class="print-root" aria-hidden="true"></div>
 
-  <script type="module" src="./src/app.js?v=20"></script>
+  <script type="module" src="./src/app.js?v=26"></script>
 </body>
 </html>

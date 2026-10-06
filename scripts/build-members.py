@@ -35,6 +35,19 @@ FOUNDER_VIP_NAMES = {
     "Benjamin Friesen",
 }
 
+STAFF_NAMES = {
+    "柳 暢祐",
+    "北野 雄大",
+    "内藤 哲",
+    "中村 泉美",
+    "小台 百華",
+    "田中 瑞樹",
+    "渡辺 未来",
+    "川口 博文",
+    "グズマン 愛南",
+    "吉田 宗弘",
+}
+
 
 def parse_member(path: Path) -> dict | None:
     stem = path.stem
@@ -47,6 +60,16 @@ def parse_member(path: Path) -> dict | None:
         print(f"skip: {path.name} (name or English name is empty)")
         return None
 
+    if name in STAFF_NAMES:
+        badge_text = "STAFF"
+        band_color = "#ef6c00"
+    elif name in FOUNDER_VIP_NAMES:
+        badge_text = "創設VIP"
+        band_color = "#d32f2f"
+    else:
+        badge_text = ""
+        band_color = ""
+
     relative_path = path.relative_to(ROOT).as_posix()
     return {
         "id": path.name,
@@ -54,8 +77,8 @@ def parse_member(path: Path) -> dict | None:
         "nameEn": name_en,
         "photo": relative_path,
         "filename": path.name,
-        "badgeText": "創設VIP" if name in FOUNDER_VIP_NAMES else "",
-        "bandColor": "#d32f2f" if name in FOUNDER_VIP_NAMES else "",
+        "badgeText": badge_text,
+        "bandColor": band_color,
     }
 
 

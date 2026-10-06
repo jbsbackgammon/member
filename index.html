@@ -16,6 +16,9 @@
       <button id="inputSelectBtn" class="button" type="button" disabled>入力選択</button>
       <button id="selectAllBtn" class="button" type="button" disabled>全選択</button>
       <button id="clearAllBtn" class="button" type="button" disabled>全解除</button>
+      <button id="jsonImportBtn" class="button" type="button" disabled>JSON取込</button>
+      <button id="jsonExportBtn" class="button" type="button" disabled>JSON出力</button>
+      <input id="jsonImportInput" type="file" accept=".json,application/json" hidden>
       <button id="photoExportBtn" class="button button-primary" type="button" disabled>写真出力</button>
       <button id="printBtn" class="button button-primary" type="button" disabled>名札出力</button>
     </div>
@@ -96,6 +99,6 @@
 
   <div id="printRoot" class="print-root" aria-hidden="true"></div>
 
-  <script type="module" src="./src/app.js?v=29"></script>
+  <script type="module" src="./src/app.js?v=30"></script>
 </body>
 </html>

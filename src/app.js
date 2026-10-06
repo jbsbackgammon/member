@@ -14,6 +14,9 @@ const selectionCount = $('#selectionCount');
 const inputSelectBtn = $('#inputSelectBtn');
 const selectAllBtn = $('#selectAllBtn');
 const clearAllBtn = $('#clearAllBtn');
+const jsonImportBtn = $('#jsonImportBtn');
+const jsonExportBtn = $('#jsonExportBtn');
+const jsonImportInput = $('#jsonImportInput');
 const inputSelectDialog = $('#inputSelectDialog');
 const inputSelectText = $('#inputSelectText');
 const inputSelectResult = $('#inputSelectResult');
@@ -302,6 +305,8 @@ function updateSelectionUi() {
   selectionCount.textContent = `選択${selectedIds.size}名`;
   inputSelectBtn.disabled = !hasMembers;
   selectAllBtn.disabled = !hasMembers;
+  jsonImportBtn.disabled = !hasMembers;
+  jsonExportBtn.disabled = !hasMembers;
   photoExportBtn.disabled = !hasSelection;
   printBtn.disabled = !hasSelection;
   clearAllBtn.disabled = !hasSelection;
@@ -462,6 +467,99 @@ function triggerDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function exportJsonSettings() {
+  if (!members.length) return;
+
+  const payload = {
+    format: 'jbs-player-material-settings',
+    version: 1,
+    members: members.map(member => ({
+      id: member.id,
+      filename: member.filename,
+      name: member.nameJa,
+      nameEn: member.nameEn,
+      selected: selectedIds.has(member.id),
+      badgeText: member.badgeText,
+      bandColor: member.bandColor,
+    })),
+  };
+
+  const json = JSON.stringify(payload, null, 2) + '\n';
+  triggerDownload(
+    new Blob([json], { type: 'application/json;charset=utf-8' }),
+    '選手素材設定.json'
+  );
+}
+
+function findMemberForImportedSetting(setting) {
+  const importedId = String(setting?.id || '').trim();
+  const importedFilename = String(setting?.filename || '').trim();
+  const importedName = String(setting?.name ?? setting?.nameJa ?? '').trim();
+  const importedNameEn = String(setting?.nameEn ?? '').trim();
+
+  return members.find(member =>
+    (importedId && member.id === importedId) ||
+    (importedFilename && member.filename === importedFilename) ||
+    (
+      importedName &&
+      importedNameEn &&
+      member.nameJa === importedName &&
+      member.nameEn === importedNameEn
+    )
+  );
+}
+
+async function importJsonSettings(file) {
+  if (!file) return;
+
+  try {
+    const data = JSON.parse(await file.text());
+    const importedMembers = Array.isArray(data) ? data : data?.members;
+
+    if (!Array.isArray(importedMembers)) {
+      throw new Error('JSONの形式が正しくありません。');
+    }
+
+    selectedIds.clear();
+    const unmatched = [];
+
+    importedMembers.forEach(setting => {
+      const member = findMemberForImportedSetting(setting);
+      if (!member) {
+        const label =
+          String(setting?.name || setting?.nameJa || setting?.filename || setting?.id || '').trim() ||
+          '不明な選手';
+        unmatched.push(label);
+        return;
+      }
+
+      if (setting.selected === true) selectedIds.add(member.id);
+
+      if (Object.prototype.hasOwnProperty.call(setting, 'badgeText')) {
+        member.badgeText = String(setting.badgeText ?? '').trim();
+      }
+
+      if (Object.prototype.hasOwnProperty.call(setting, 'bandColor')) {
+        member.bandColor = normalizeColor(setting.bandColor);
+      }
+    });
+
+    renderList();
+
+    if (unmatched.length) {
+      alert(
+        `JSONを取り込みました。\n現在の選手素材に見つからない選手（${unmatched.length}名）\n` +
+        unmatched.join('\n')
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'JSONの取込に失敗しました。');
+  } finally {
+    jsonImportInput.value = '';
+  }
+}
+
 async function exportSelectedPhotos() {
   const selected = selectedMembers();
   if (!selected.length) return;
@@ -560,6 +658,12 @@ searchInput.addEventListener('input', applySearch);
 inputSelectBtn.addEventListener('click', openInputSelectDialog);
 selectAllBtn.addEventListener('click', selectAllMembers);
 clearAllBtn.addEventListener('click', clearAllSelections);
+jsonImportBtn.addEventListener('click', () => jsonImportInput.click());
+jsonExportBtn.addEventListener('click', exportJsonSettings);
+jsonImportInput.addEventListener('change', () => {
+  const [file] = jsonImportInput.files || [];
+  importJsonSettings(file);
+});
 inputSelectApplyBtn.addEventListener('click', applyInputSelection);
 inputSelectCancelBtn.addEventListener('click', closeInputSelectDialog);
 inputSelectCloseBtn.addEventListener('click', closeInputSelectDialog);

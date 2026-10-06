@@ -8,6 +8,33 @@ IMAGES_DIR = ROOT / "images"
 OUTPUT = ROOT / "data" / "members.json"
 SUPPORTED = {".png", ".jpg", ".jpeg", ".webp"}
 
+FOUNDER_VIP_NAMES = {
+    "安藤 弘達",
+    "日野 雄之",
+    "平林 直",
+    "犬塚 岳史",
+    "神谷 正俊",
+    "川合 仁",
+    "川口 博文",
+    "木原 直哉",
+    "来住野 香子",
+    "桑門 昌太郎",
+    "松浦 崚",
+    "三島 泰夫",
+    "水谷 晋",
+    "望月 正行",
+    "二宮 幸浩",
+    "西山 博",
+    "小倉 裕二",
+    "乙部 朱美",
+    "斎藤 和弘",
+    "武田 英希",
+    "田中 浩",
+    "山本 雅人",
+    "柳 暢祐",
+    "Benjamin Friesen",
+}
+
 
 def parse_member(path: Path) -> dict | None:
     stem = path.stem
@@ -27,8 +54,8 @@ def parse_member(path: Path) -> dict | None:
         "nameEn": name_en,
         "photo": relative_path,
         "filename": path.name,
-        "badgeText": "",
-        "bandColor": "",
+        "badgeText": "創設VIP" if name in FOUNDER_VIP_NAMES else "",
+        "bandColor": "#d32f2f" if name in FOUNDER_VIP_NAMES else "",
     }
 
 

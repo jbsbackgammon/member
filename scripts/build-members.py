@@ -60,7 +60,10 @@ def parse_member(path: Path) -> dict | None:
         print(f"skip: {path.name} (name or English name is empty)")
         return None
 
-    if name in STAFF_NAMES:
+    if name in STAFF_NAMES and name in FOUNDER_VIP_NAMES:
+        badge_text = "創設VIP・STAFF"
+        band_color = "#ef6c00"
+    elif name in STAFF_NAMES:
         badge_text = "STAFF"
         band_color = "#ef6c00"
     elif name in FOUNDER_VIP_NAMES:

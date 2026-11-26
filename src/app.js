@@ -764,14 +764,36 @@ inputSelectCancelBtn.addEventListener('click', closeInputSelectDialog);
 inputSelectCloseBtn.addEventListener('click', closeInputSelectDialog);
 photoExportBtn.addEventListener('click', exportSelectedPhotos);
 
+let originalPrintTitle = null;
+
+function finishBadgePrint() {
+  if (originalPrintTitle !== null) {
+    document.title = originalPrintTitle;
+    originalPrintTitle = null;
+  }
+  printRoot.replaceChildren();
+}
+
 printBtn.addEventListener('click', () => {
   const selected = selectedMembers();
-  if (!selected.length) return;
+  if (!selected.length || originalPrintTitle !== null) return;
   buildPrintPages(printRoot, selected);
-  requestAnimationFrame(() => window.print());
+  originalPrintTitle = document.title;
+  // The browser normally uses document.title as the suggested PDF filename.
+  // Do not append .pdf here; the print dialog adds the extension.
+  document.title = '名札';
+  requestAnimationFrame(() => {
+    try {
+      window.print();
+    } catch (error) {
+      finishBadgePrint();
+      console.error(error);
+      alert('名札の印刷を開始できませんでした。');
+    }
+  });
 });
 
-window.addEventListener('afterprint', () => printRoot.replaceChildren());
+window.addEventListener('afterprint', finishBadgePrint);
 
 try {
   await loadMembers();

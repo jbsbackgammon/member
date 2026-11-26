@@ -4,7 +4,7 @@
 html, body { margin: 0; min-height: 100%; }
 
 @media screen {
-  body.jbsui { background: var(--color-95); }
+  html, body.jbsui { background: var(--color-100); }
   .jbsui [hidden] { display: none !important; }
 
   .jbsui .app-header {
@@ -34,49 +34,20 @@ html, body { margin: 0; min-height: 100%; }
     max-width: var(--width-content-max);
     margin: var(--space-16) auto var(--space-24);
   }
-  .member-list-wrap {
-    border: var(--width-border) solid var(--color-85);
-    border-radius: var(--radius);
-    overflow-x: auto;
-    overflow-y: hidden;
-    background: var(--color-100);
+  /* Reuse the exact native table styling used by common/index.html.
+     Only member-specific column widths, alignment and filtering live here. */
+  .member-table {
+    min-width: 900px;
+    table-layout: fixed;
   }
-  .member-list-head, .member-row {
-    min-width: 820px;
-    display: grid;
-    grid-template-columns: 60px 52px minmax(115px,.9fr) minmax(140px,1fr) minmax(125px,.86fr) 244px;
+  .member-table col.col-check { width: 60px; }
+  .member-table col.col-photo { width: 64px; }
+  .member-table col.col-color { width: 252px; }
+  .jbsui .member-table :is(th, td):is(.col-check, .col-photo, .col-color) {
+    text-align: center;
   }
-  .member-list-head {
-    background: var(--color-95);
-    border-bottom: var(--width-border) solid var(--color-85);
-    color: var(--color-45);
-    font-size: var(--font-size-12);
-    font-weight: var(--font-weight-action);
-  }
-  .member-list-head > div {
-    min-height: var(--height-button);
-    padding: var(--space-4) var(--space-8);
-    border-right: var(--width-border) solid var(--color-85);
-    display: flex;
-    align-items: center;
-  }
-  .member-list-head .col-check, .member-list-head .col-photo { justify-content: center; }
-  .member-list-head > div:last-child { border-right: 0; }
-  .member-row {
-    min-height: calc(var(--height-input) + 2 * var(--space-4));
-    border-bottom: var(--width-border) solid var(--color-85);
-    background: var(--color-100);
-  }
-  .member-row:last-child { border-bottom: 0; }
-  .member-row > div {
-    padding: var(--space-4) var(--space-8);
-    border-right: var(--width-border) solid var(--color-95);
-    min-width: 0;
-    overflow: hidden;
-  }
-  .member-row > div:last-child { border-right: 0; }
+  .member-row { background: var(--color-100); }
   .member-row.is-filtered { display: none; }
-  .text-cell { display: flex; align-items: center; }
   .member-name-ja, .member-name-en {
     font-size: var(--font-size-14);
     line-height: 1.25;
@@ -87,11 +58,10 @@ html, body { margin: 0; min-height: 100%; }
   .member-name-ja { font-weight: var(--font-weight-action); }
   .member-name-en { font-weight: var(--font-weight-normal); }
 
-  .photo-cell { display: flex; align-items: center; justify-content: center; }
   .photo-wrap {
     width: var(--size-swatch);
     height: var(--size-swatch);
-    flex: 0 0 var(--size-swatch);
+    margin: 0 auto;
     border: var(--width-border) solid var(--color-85);
     border-radius: var(--radius);
     overflow: hidden;
@@ -108,15 +78,12 @@ html, body { margin: 0; min-height: 100%; }
   }
   .jbsui .print-check-label {
     width: 100%;
-    height: 100%;
     justify-content: center;
   }
   .print-check { cursor: pointer; }
-  .jbsui .field-cell { display: flex; align-items: center; }
   .jbsui .field-cell input { min-width: 0; }
 
-  .color-cell { display: flex; align-items: center; justify-content: center; }
-  .color-presets { display: flex; align-items: center; gap: 5px; }
+  .color-presets { display: flex; align-items: center; justify-content: center; gap: 5px; }
   .color-presets button {
     width: 20px;
     height: 20px;

@@ -25,6 +25,12 @@ const clearAllBtn = $('#clearAllBtn');
 const jsonImportBtn = $('#jsonImportBtn');
 const jsonExportBtn = $('#jsonExportBtn');
 const jsonImportInput = $('#jsonImportInput');
+const loadSettingsBtn = $('#loadSettings');
+const saveSettingsBtn = $('#saveSettings');
+const settingsDialog = $('#settingsDialog');
+const savedSettingsList = $('#savedSettings');
+const savedSettingsKey = 'jbs-member-saved-settings';
+const savedSettingsLimit = 100;
 const inputSelectDialog = $('#inputSelectDialog');
 const inputSelectText = $('#inputSelectText');
 const inputSelectResult = $('#inputSelectResult');
@@ -315,6 +321,8 @@ function updateSelectionUi() {
   selectAllBtn.disabled = !hasMembers;
   jsonImportBtn.disabled = !hasMembers;
   jsonExportBtn.disabled = !hasMembers;
+  loadSettingsBtn.disabled = !hasMembers;
+  saveSettingsBtn.disabled = !hasMembers || saveSettingsBtn.classList.contains('jbsui-button--complete');
   photoExportBtn.disabled = !hasSelection;
   printBtn.disabled = !hasSelection;
   clearAllBtn.disabled = !hasSelection;
@@ -475,10 +483,8 @@ function triggerDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function exportJsonSettings() {
-  if (!members.length) return;
-
-  const payload = {
+function collectSettings() {
+  return {
     format: 'jbs-player-material-settings',
     version: 1,
     members: members.map(member => ({
@@ -492,6 +498,11 @@ function exportJsonSettings() {
     })),
   };
 
+}
+
+function exportJsonSettings() {
+  if (!members.length) return;
+  const payload = collectSettings();
   const json = JSON.stringify(payload, null, 2) + '\n';
   const now = new Date();
   const pad = value => String(value).padStart(2, '0');
@@ -526,43 +537,48 @@ function findMemberForImportedSetting(setting) {
   );
 }
 
-async function importJsonSettings(file) {
-  if (!file) return;
+function applySettings(data, { preserveWhitespace = false } = {}) {
+  const importedMembers = Array.isArray(data) ? data : data?.members;
 
-  try {
-    const data = JSON.parse(await file.text());
-    const importedMembers = Array.isArray(data) ? data : data?.members;
+  if (!Array.isArray(importedMembers)) {
+    throw new Error('JSONの形式が正しくありません。');
+  }
 
-    if (!Array.isArray(importedMembers)) {
-      throw new Error('JSONの形式が正しくありません。');
+  selectedIds.clear();
+  const unmatched = [];
+
+  importedMembers.forEach(setting => {
+    const member = findMemberForImportedSetting(setting);
+    if (!member) {
+      const label =
+        String(setting?.name || setting?.nameJa || setting?.filename || setting?.id || '').trim() ||
+        '不明な選手';
+      unmatched.push(label);
+      return;
     }
 
-    selectedIds.clear();
-    const unmatched = [];
+    if (setting.selected === true) selectedIds.add(member.id);
 
-    importedMembers.forEach(setting => {
-      const member = findMemberForImportedSetting(setting);
-      if (!member) {
-        const label =
-          String(setting?.name || setting?.nameJa || setting?.filename || setting?.id || '').trim() ||
-          '不明な選手';
-        unmatched.push(label);
-        return;
-      }
+    if (Object.prototype.hasOwnProperty.call(setting, 'badgeText')) {
+      const value = String(setting.badgeText ?? '');
+      member.badgeText = preserveWhitespace ? value : value.trim();
+    }
 
-      if (setting.selected === true) selectedIds.add(member.id);
+    if (Object.prototype.hasOwnProperty.call(setting, 'bandColor')) {
+      member.bandColor = normalizeColor(setting.bandColor);
+    }
+  });
 
-      if (Object.prototype.hasOwnProperty.call(setting, 'badgeText')) {
-        member.badgeText = String(setting.badgeText ?? '').trim();
-      }
+  renderList();
 
-      if (Object.prototype.hasOwnProperty.call(setting, 'bandColor')) {
-        member.bandColor = normalizeColor(setting.bandColor);
-      }
-    });
+  return unmatched;
+}
 
-    renderList();
-
+async function importJsonSettings(file) {
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const unmatched = applySettings(data);
     if (unmatched.length) {
       alert(
         `JSONを取り込みました。\n現在の選手素材に見つからない選手（${unmatched.length}名）\n` +
@@ -574,6 +590,65 @@ async function importJsonSettings(file) {
     alert(error.message || 'JSONの取込に失敗しました。');
   } finally {
     jsonImportInput.value = '';
+  }
+}
+
+function readSavedSettings() {
+  const raw = localStorage.getItem(savedSettingsKey);
+  if (!raw) return [];
+  const entries = JSON.parse(raw);
+  if (!Array.isArray(entries)) throw new Error('保存済み設定の形式が正しくありません。');
+  return entries.filter(entry => entry && Array.isArray(entry.state?.members));
+}
+
+function saveSettings() {
+  if (!members.length) return;
+  try {
+    const entries = readSavedSettings();
+    entries.unshift({ savedAt: new Date().toISOString(), state: collectSettings() });
+    localStorage.setItem(savedSettingsKey, JSON.stringify(entries.slice(0, savedSettingsLimit)));
+    if (window.JBSUI?.showButtonFeedback) window.JBSUI.showButtonFeedback(saveSettingsBtn);
+    else alert('設定を保存しました。');
+  } catch (error) {
+    console.error(error);
+    alert('設定を保存できませんでした。ブラウザの保存設定や空き容量を確認してください。');
+  }
+}
+
+function openSavedSettings() {
+  if (!members.length) return;
+  try {
+    const entries = readSavedSettings();
+    savedSettingsList.replaceChildren();
+    if (!entries.length) {
+      const empty = document.createElement('p');
+      empty.className = 'jbsui-saved-settings-empty';
+      empty.textContent = '保存された設定はありません。';
+      savedSettingsList.append(empty);
+    }
+    entries.forEach(entry => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'jbsui-saved-setting';
+      const date = window.JBSNaming?.formatSavedAt(entry.savedAt) || new Date(entry.savedAt).toLocaleString('ja-JP');
+      const count = entry.state.members.filter(member => member?.selected === true).length;
+      button.textContent = `${date}｜選択${count}名`;
+      button.addEventListener('click', () => {
+        try {
+          const unmatched = applySettings(entry.state, { preserveWhitespace: true });
+          settingsDialog.close();
+          if (unmatched.length) alert(`設定を呼び出しました。\n現在の選手素材に見つからない選手（${unmatched.length}名）\n` + unmatched.join('\n'));
+        } catch (error) {
+          console.error(error);
+          alert(error.message || '設定の呼出に失敗しました。');
+        }
+      });
+      savedSettingsList.append(button);
+    });
+    settingsDialog.showModal();
+  } catch (error) {
+    console.error(error);
+    alert('保存した設定を読み込めませんでした。');
   }
 }
 
@@ -677,6 +752,9 @@ selectAllBtn.addEventListener('click', selectAllMembers);
 clearAllBtn.addEventListener('click', clearAllSelections);
 jsonImportBtn.addEventListener('click', () => jsonImportInput.click());
 jsonExportBtn.addEventListener('click', exportJsonSettings);
+loadSettingsBtn.addEventListener('click', openSavedSettings);
+saveSettingsBtn.addEventListener('click', saveSettings);
+$('#closeSettings').addEventListener('click', () => settingsDialog.close());
 jsonImportInput.addEventListener('change', () => {
   const [file] = jsonImportInput.files || [];
   importJsonSettings(file);

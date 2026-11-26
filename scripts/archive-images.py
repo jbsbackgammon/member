@@ -96,7 +96,11 @@ def archive_updates(baseline: str = BASELINE) -> int:
             while True:
                 stamp = date.strftime("%Y%m%d%H%M%S")
                 target = ARCHIVE / archive_name(path, f"_{stamp}{path.suffix}")
-                if not target.exists():
+                # Do not reuse a name that was manually deleted in the past.
+                if not target.exists() and not git(
+                    "log", "--first-parent", "-1", "--format=%H", "--",
+                    target.relative_to(ROOT).as_posix()
+                ).strip():
                     break
                 date += timedelta(seconds=1)
             previous = git("cat-file", "blob", old_oid)

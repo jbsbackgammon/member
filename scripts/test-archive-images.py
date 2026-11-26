@@ -16,6 +16,7 @@ class ArchiveTest(unittest.TestCase):
             root = Path(directory)
             archive.ROOT = root
             archive.ARCHIVE = root / "images" / "old"
+            archive.STATE = root / "scripts" / "archive-state.json"
 
             def git(*args):
                 return subprocess.check_output(["git", *args], cwd=root)
@@ -48,8 +49,28 @@ class ArchiveTest(unittest.TestCase):
             self.assertEqual(other.read_bytes(), b"new")
             commit("archive")
             self.assertEqual(archive.archive_updates(baseline), 0)
+            # Manual deletion is permanent, even when subsequent updates occur.
+            removed = next(p for p in files if p.read_bytes() == b"original")
+            removed.unlink()
+            commit("manual archive deletion")
+            self.assertEqual(archive.archive_updates(baseline), 0)
+            self.assertFalse(removed.exists())
+            photo.write_bytes(b"fourth")
+            commit("third update")
+            self.assertEqual(archive.archive_updates(baseline), 1)
+            self.assertFalse(removed.exists())
+            self.assertEqual({p.read_bytes() for p in archive.ARCHIVE.iterdir()}, {b"second", b"third"})
+            commit("archive third update")
+            # Simulate migration from the former implementation, which has no
+            # checkpoint but has archive additions/deletions in Git history.
+            archive.STATE.unlink()
+            commit("simulate legacy archive state")
+            self.assertEqual(archive.archive_updates(baseline), 0)
+            self.assertFalse(removed.exists())
+            self.assertTrue(archive.STATE.exists())
+            commit("migration checkpoint")
             photo.unlink()
-            commit("delete")
+            commit("delete current image")
             self.assertEqual(archive.archive_updates(baseline), 0)
 
 

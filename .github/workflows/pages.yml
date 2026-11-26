@@ -46,6 +46,7 @@ jobs:
             git fetch origin +refs/heads/main:refs/remotes/origin/main
             git reset --hard origin/main
             python3 scripts/archive-images.py
+            git add -- scripts/archive-state.json
             if [ -d images/old ]; then
               git add -- images/old
             fi
@@ -69,7 +70,7 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Exclude archived photos from published site
-        run: rm -rf -- images/old
+        run: rm -rf -- images/old scripts/archive-state.json
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

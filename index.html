@@ -6,24 +6,28 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="theme-color" content="#ffffff">
   <title>選手素材管理</title>
-  <link rel="stylesheet" href="./style.css?v=27">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;800&display=swap" rel="stylesheet" media="screen">
+  <link rel="stylesheet" href="https://jbsbackgammon.github.io/common/ui.css" media="screen">
+  <link rel="stylesheet" href="./style.css?v=28">
   <link rel="icon" href="https://jbsbackgammon.github.io/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="https://jbsbackgammon.github.io/favicon-32x32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="https://jbsbackgammon.github.io/apple-touch-icon.png">
 </head>
-<body>
-  <header class="app-header">
-    <div class="header-actions">
+<body class="jbsui">
+  <header class="app-header jbsui-panel">
+    <div class="header-actions jbsui-actions">
       <div id="selectionCount" class="selection-count" aria-live="polite">選択0名</div>
-      <input id="searchInput" class="header-search" type="search" autocomplete="off" placeholder="検索" aria-label="検索">
-      <button id="inputSelectBtn" class="button" type="button" disabled>入力選択</button>
-      <button id="selectAllBtn" class="button" type="button" disabled>全選択</button>
-      <button id="clearAllBtn" class="button" type="button" disabled>全解除</button>
-      <button id="jsonImportBtn" class="button" type="button" disabled>JSON取込</button>
-      <button id="jsonExportBtn" class="button" type="button" disabled>JSON出力</button>
+      <div class="header-search-field jbsui-field"><input id="searchInput" class="header-search" type="search" autocomplete="off" placeholder="検索" aria-label="検索"></div>
+      <button id="inputSelectBtn" class="button jbsui-button" type="button" disabled>入力選択</button>
+      <button id="selectAllBtn" class="button jbsui-button" type="button" disabled>全選択</button>
+      <button id="clearAllBtn" class="button jbsui-button" type="button" disabled>全解除</button>
+      <button id="jsonImportBtn" class="button jbsui-button" type="button" disabled>JSON取込</button>
+      <button id="jsonExportBtn" class="button jbsui-button" type="button" disabled>JSON出力</button>
       <input id="jsonImportInput" type="file" accept=".json,application/json" hidden>
-      <button id="photoExportBtn" class="button button-primary" type="button" disabled>写真出力</button>
-      <button id="printBtn" class="button button-primary" type="button" disabled>名札出力</button>
+      <button id="photoExportBtn" class="button button-primary jbsui-button jbsui-button--primary jbsui-button--primary-action" type="button" disabled>写真出力</button>
+      <button id="printBtn" class="button button-primary jbsui-button jbsui-button--primary jbsui-button--primary-action" type="button" disabled>名札出力</button>
     </div>
   </header>
 
@@ -45,19 +49,19 @@
     </section>
   </main>
 
-  <dialog id="inputSelectDialog" class="input-select-dialog">
+  <dialog id="inputSelectDialog" class="input-select-dialog jbsui-dialog">
     <form method="dialog" class="input-select-modal" id="inputSelectForm">
-      <div class="input-select-modal-head">
-        <strong>入力選択</strong>
-        <button id="inputSelectCloseBtn" class="modal-close" type="button" aria-label="閉じる">×</button>
+      <div class="input-select-modal-head jbsui-dialog-head">
+        <h2>入力選択</h2>
+        <button id="inputSelectCloseBtn" class="modal-close jbsui-dialog-close" type="button" aria-label="閉じる">×</button>
       </div>
       <div class="input-select-modal-body">
         <textarea id="inputSelectText" rows="14" placeholder="西川 清一/NISHIKAWA Kiyokazu&#10;中村 順子/NAKAMURA Junko" aria-label="選手リスト"></textarea>
         <div id="inputSelectResult" class="input-select-result" hidden></div>
       </div>
-      <div class="input-select-modal-actions">
-        <button id="inputSelectCancelBtn" class="button" type="button">キャンセル</button>
-        <button id="inputSelectApplyBtn" class="button button-primary" type="button">選択</button>
+      <div class="input-select-modal-actions jbsui-actions">
+        <button id="inputSelectCancelBtn" class="button jbsui-button" type="button">キャンセル</button>
+        <button id="inputSelectApplyBtn" class="button button-primary jbsui-button jbsui-button--primary" type="button">選択</button>
       </div>
     </form>
   </dialog>
@@ -65,7 +69,7 @@
   <template id="memberRowTemplate">
     <article class="member-row">
       <div class="col-check field-check">
-        <label class="print-check-label" title="選択">
+        <label class="print-check-label jbsui-check" title="選択">
           <input class="print-check" type="checkbox" aria-label="選択">
         </label>
       </div>
@@ -81,7 +85,7 @@
       <div class="col-en text-cell">
         <div class="member-name-en"></div>
       </div>
-      <div class="col-badge field-cell">
+      <div class="col-badge field-cell jbsui-field">
         <input class="badge-text" type="text" autocomplete="off" aria-label="名札文言">
       </div>
       <div class="col-color color-cell">
@@ -102,6 +106,6 @@
 
   <div id="printRoot" class="print-root" aria-hidden="true"></div>
 
-  <script type="module" src="./src/app.js?v=31"></script>
+  <script type="module" src="./src/app.js?v=32"></script>
 </body>
 </html>

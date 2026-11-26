@@ -2,6 +2,14 @@ import { buildPrintPages } from './print.js?v=20';
 import { createZip } from './zip.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
+
+// Match the keyboard-only focus ring convention used by the JBS editors.
+document.addEventListener('keydown', event => {
+  if (event.key === 'Tab') document.documentElement.setAttribute('data-jbsui-keyboard-focus', '');
+});
+document.addEventListener('pointerdown', () => {
+  document.documentElement.removeAttribute('data-jbsui-keyboard-focus');
+});
 const listEl = $('#memberList');
 const emptyState = $('#emptyState');
 const emptyTitle = $('#emptyTitle');

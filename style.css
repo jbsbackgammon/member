@@ -125,7 +125,7 @@ html, body { margin: 0; min-height: 100%; }
   .color-presets button[data-color="#ef6c00"] { background: #ef6c00; }
   .color-presets button[data-color="#e91e63"] { background: #e91e63; }
   .color-presets button[data-color="#8e24aa"] { background: #8e24aa; }
-  .color-presets button.active { outline: var(--width-focus-ring) solid var(--color-25); }
+  .color-presets button.active { outline: var(--width-focus-ring) solid #6d97d0; }
   .jbsui .color-presets button:focus-visible {
     outline: var(--width-focus-ring) solid var(--color-60);
     outline-offset: var(--width-border);

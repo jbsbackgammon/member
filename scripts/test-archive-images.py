@@ -1,5 +1,6 @@
 """Integration tests using a temporary Git repository, not live member photos."""
 import importlib.util
+import os
 import subprocess
 import tempfile
 import unittest
@@ -19,7 +20,11 @@ class ArchiveTest(unittest.TestCase):
             archive.STATE = root / "scripts" / "archive-state.json"
 
             def git(*args):
-                return subprocess.check_output(["git", *args], cwd=root)
+                return subprocess.check_output(["git", *args], cwd=root, env={
+                    **os.environ,
+                    "GIT_AUTHOR_DATE": "2026-11-26T16:23:30+09:00",
+                    "GIT_COMMITTER_DATE": "2026-11-26T16:23:30+09:00",
+                })
 
             git("init", "-q")
             git("config", "user.name", "Test")
@@ -44,7 +49,10 @@ class ArchiveTest(unittest.TestCase):
             self.assertEqual(archive.archive_updates(baseline), 2)
             files = list(archive.ARCHIVE.iterdir())
             self.assertEqual({p.read_bytes() for p in files}, {b"original", b"second"})
-            self.assertTrue(all(p.name.startswith("選手 名前_Player_") for p in files))
+            self.assertEqual({p.name for p in files}, {
+                "選手 名前_Player_20261126162330.png",
+                "選手 名前_Player_20261126162331.png",
+            })
             self.assertEqual(photo.read_bytes(), b"third")
             self.assertEqual(other.read_bytes(), b"new")
             commit("archive")
@@ -61,10 +69,9 @@ class ArchiveTest(unittest.TestCase):
             self.assertFalse(removed.exists())
             self.assertEqual({p.read_bytes() for p in archive.ARCHIVE.iterdir()}, {b"second", b"third"})
             commit("archive third update")
-            # Simulate migration from the former implementation, which has no
-            # checkpoint but has archive additions/deletions in Git history.
+            # Recover an accidentally deleted checkpoint from Git history.
             archive.STATE.unlink()
-            commit("simulate legacy archive state")
+            commit("delete checkpoint")
             self.assertEqual(archive.archive_updates(baseline), 0)
             self.assertFalse(removed.exists())
             self.assertTrue(archive.STATE.exists())

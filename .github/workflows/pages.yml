@@ -12,10 +12,15 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -23,12 +28,48 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Test photo archive
+        run: python3 scripts/test-archive-images.py
+
+      - name: Archive superseded photos
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Always catch up with main, including any pushes made during this run.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin +refs/heads/main:refs/remotes/origin/main
+            git reset --hard origin/main
+            python3 scripts/archive-images.py
+            if [ -d images/old ]; then
+              git add -- images/old
+            fi
+            if git diff --cached --quiet; then
+              exit 0
+            fi
+            git commit -m "Archive superseded member photos"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            # A concurrent push may have advanced main. Retry from the new head.
+            sleep 2
+          done
+          echo "::error::Could not push photo archives to main"
+          exit 1
 
       - name: Build member list
         run: python3 scripts/build-members.py
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
+
+      - name: Exclude archived photos from published site
+        run: rm -rf -- images/old
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

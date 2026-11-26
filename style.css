@@ -10,13 +10,13 @@ html, body { margin: 0; min-height: 100%; }
   .jbsui .app-header {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     position: sticky;
     top: 0;
     z-index: 30;
   }
-  .jbsui .header-actions { justify-content: flex-end; min-width: 0; }
-  .header-search-field { flex: 1 1 180px; max-width: 300px; min-width: 120px; }
+  .jbsui .header-actions { justify-content: flex-start; width: 100%; min-width: 0; }
+  .header-search-field { flex: 0 1 180px; max-width: 300px; min-width: 120px; }
   .jbsui .header-search { min-width: 0; }
   .header-search::placeholder { color: var(--color-60); opacity: 1; }
   .selection-count {
@@ -183,7 +183,6 @@ html, body { margin: 0; min-height: 100%; }
   .jbsui .header-actions { width: 100%; justify-content: flex-start; }
   .selection-count { min-width: auto; text-align: left; }
   .header-search-field { max-width: none; }
-  .header-actions .button { flex: 1 1 auto; }
   .jbsui .header-actions .jbsui-button--primary-action { min-width: min(var(--width-primary-action-min), 100%); }
   .app-main { width: calc(100% - var(--space-24)); margin-top: var(--space-12); }
 }

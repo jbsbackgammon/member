@@ -27,7 +27,7 @@ html, body { margin: 0; min-height: 100%; }
     text-align: right;
     white-space: nowrap;
   }
-  .jbsui .button { white-space: nowrap; }
+  .jbsui .jbsui-button { white-space: nowrap; }
 
   .app-main {
     width: calc(100% - var(--space-24) - var(--space-24));
@@ -116,15 +116,7 @@ html, body { margin: 0; min-height: 100%; }
     transform: rotate(-45deg);
     transform-origin: center;
   }
-  /* Actual badge colors are output data, not application theme colors. */
-  .color-presets button[data-color="#000000"] { background: #000; }
-  .color-presets button[data-color="#d32f2f"] { background: #d32f2f; }
-  .color-presets button[data-color="#1b5fbf"] { background: #1b5fbf; }
-  .color-presets button[data-color="#fff200"] { background: #fff200; }
-  .color-presets button[data-color="#2e7d32"] { background: #2e7d32; }
-  .color-presets button[data-color="#ef6c00"] { background: #ef6c00; }
-  .color-presets button[data-color="#e91e63"] { background: #e91e63; }
-  .color-presets button[data-color="#8e24aa"] { background: #8e24aa; }
+  /* Swatch colors are read directly from the HTML data-color attributes. */
   .color-presets button.active { outline: var(--width-focus-ring) solid #6d97d0; }
   .jbsui .color-presets button:focus-visible {
     outline: var(--width-focus-ring) solid var(--color-60);

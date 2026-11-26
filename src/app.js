@@ -381,6 +381,7 @@ function bindMemberRow(member, row) {
   });
 
   row.querySelectorAll('.color-presets button').forEach(button => {
+    button.style.backgroundColor = button.dataset.color;
     button.addEventListener('click', () => setBandColor(member, row, button.dataset.color));
   });
 }
@@ -505,14 +506,10 @@ function exportJsonSettings() {
   const payload = collectSettings();
   const json = JSON.stringify(payload, null, 2) + '\n';
   const now = new Date();
-  const pad = value => String(value).padStart(2, '0');
-  const timestamp =
-    `${now.getFullYear()}` +
-    `${pad(now.getMonth() + 1)}` +
-    `${pad(now.getDate())}` +
-    `${pad(now.getHours())}` +
-    `${pad(now.getMinutes())}` +
-    `${pad(now.getSeconds())}`;
+  // Reuse the shared local-time format; preserve export if common is unavailable.
+  const formatted = window.JBSNaming?.formatSavedAt(now) ||
+    new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 19);
+  const timestamp = formatted.replace(/\D/g, '');
   triggerDownload(
     new Blob([json], { type: 'application/json;charset=utf-8' }),
     `member_${timestamp}.json`

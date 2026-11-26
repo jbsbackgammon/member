@@ -8,9 +8,9 @@
   <title>選手素材管理</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;800&display=swap" rel="stylesheet" media="screen">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" media="screen">
   <link rel="stylesheet" href="https://jbsbackgammon.github.io/common/ui.css" media="screen">
-  <link rel="stylesheet" href="./style.css?v=33">
+  <link rel="stylesheet" href="./style.css?v=34">
   <link rel="icon" href="https://jbsbackgammon.github.io/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="https://jbsbackgammon.github.io/favicon-32x32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="https://jbsbackgammon.github.io/apple-touch-icon.png">
@@ -18,25 +18,25 @@
 <body class="jbsui">
   <header class="app-header jbsui-panel">
     <div class="header-actions jbsui-actions">
-      <button id="photoExportBtn" class="button button-primary jbsui-button jbsui-button--primary jbsui-button--primary-action" type="button" disabled>写真出力</button>
-      <button id="printBtn" class="button button-primary jbsui-button jbsui-button--primary jbsui-button--primary-action" type="button" disabled>名札出力</button>
+      <button id="photoExportBtn" class="jbsui-button jbsui-button--primary jbsui-button--primary-action" type="button" disabled>写真出力</button>
+      <button id="printBtn" class="jbsui-button jbsui-button--primary jbsui-button--primary-action" type="button" disabled>名札出力</button>
       <div id="selectionCount" class="selection-count" aria-live="polite">選択0名</div>
       <span class="jbsui-divider" aria-hidden="true"></span>
       <div class="header-search-field jbsui-field"><input id="searchInput" class="header-search" type="search" autocomplete="off" placeholder="検索" aria-label="検索"></div>
-      <button id="selectAllBtn" class="button jbsui-button" type="button" disabled>全選択</button>
-      <button id="clearAllBtn" class="button jbsui-button" type="button" disabled>全解除</button>
-      <button id="inputSelectBtn" class="button jbsui-button" type="button" disabled>リスト選択</button>
-      <button id="loadSettings" class="button jbsui-button" type="button" disabled>設定呼出</button>
-      <button id="jsonImportBtn" class="button jbsui-button" type="button" disabled>JSON取込</button>
+      <button id="selectAllBtn" class="jbsui-button" type="button" disabled>全選択</button>
+      <button id="clearAllBtn" class="jbsui-button" type="button" disabled>全解除</button>
+      <button id="inputSelectBtn" class="jbsui-button" type="button" disabled>リスト選択</button>
+      <button id="loadSettings" class="jbsui-button" type="button" disabled>設定呼出</button>
+      <button id="jsonImportBtn" class="jbsui-button" type="button" disabled>JSON取込</button>
       <span class="jbsui-divider" aria-hidden="true"></span>
-      <button id="saveSettings" class="button jbsui-button" type="button" disabled>設定保存</button>
-      <button id="jsonExportBtn" class="button jbsui-button" type="button" disabled>JSON出力</button>
+      <button id="saveSettings" class="jbsui-button" type="button" disabled>設定保存</button>
+      <button id="jsonExportBtn" class="jbsui-button" type="button" disabled>JSON出力</button>
       <input id="jsonImportInput" type="file" accept=".json,application/json" hidden>
     </div>
   </header>
 
   <main class="app-main">
-    <section class="member-list-wrap jbsui-reference-scroll">
+    <section class="jbsui-reference-scroll">
       <table class="member-table jbsui-reference-table" aria-label="選手一覧">
         <colgroup>
           <col class="col-check">
@@ -47,7 +47,7 @@
           <col class="col-color">
         </colgroup>
         <thead>
-          <tr class="member-list-head">
+          <tr>
             <th scope="col" class="col-check">選択</th>
             <th scope="col" class="col-photo">写真</th>
             <th scope="col" class="col-name">名前</th>
@@ -56,7 +56,7 @@
             <th scope="col" class="col-color">名札帯色</th>
           </tr>
         </thead>
-        <tbody id="memberList" class="member-list"></tbody>
+        <tbody id="memberList"></tbody>
       </table>
       <div id="emptyState" class="empty-state" hidden>
         <strong id="emptyTitle">会員情報がありません。</strong>
@@ -67,17 +67,17 @@
 
   <dialog id="inputSelectDialog" class="input-select-dialog jbsui-dialog">
     <form method="dialog" class="input-select-modal" id="inputSelectForm">
-      <div class="input-select-modal-head jbsui-dialog-head">
+      <div class="jbsui-dialog-head">
         <h2>リスト選択</h2>
-        <button id="inputSelectCloseBtn" class="modal-close jbsui-dialog-close" type="button" aria-label="閉じる">×</button>
+        <button id="inputSelectCloseBtn" class="jbsui-dialog-close" type="button" aria-label="閉じる">×</button>
       </div>
       <div class="input-select-modal-body">
         <textarea id="inputSelectText" rows="14" placeholder="西川 清一/NISHIKAWA Kiyokazu&#10;中村 順子/NAKAMURA Junko" aria-label="選手リスト"></textarea>
         <div id="inputSelectResult" class="input-select-result" hidden></div>
       </div>
       <div class="input-select-modal-actions jbsui-actions">
-        <button id="inputSelectCancelBtn" class="button jbsui-button" type="button">キャンセル</button>
-        <button id="inputSelectApplyBtn" class="button button-primary jbsui-button jbsui-button--primary" type="button">選択</button>
+        <button id="inputSelectCancelBtn" class="jbsui-button" type="button">キャンセル</button>
+        <button id="inputSelectApplyBtn" class="jbsui-button jbsui-button--primary" type="button">選択</button>
       </div>
     </form>
   </dialog>
@@ -92,29 +92,29 @@
 
   <template id="memberRowTemplate">
     <tr class="member-row">
-      <td class="col-check field-check">
+      <td class="col-check">
         <label class="print-check-label jbsui-check" title="選択">
           <input class="print-check" type="checkbox" aria-label="選択">
         </label>
       </td>
-      <td class="col-photo photo-cell">
+      <td class="col-photo">
         <div class="photo-wrap">
           <img class="member-photo" alt="顔写真" hidden>
           <div class="photo-placeholder">PHOTO</div>
         </div>
       </td>
-      <td class="col-name text-cell">
+      <td class="col-name">
         <div class="member-name-ja"></div>
       </td>
-      <td class="col-en text-cell">
+      <td class="col-en">
         <div class="member-name-en"></div>
       </td>
       <td class="col-badge field-cell">
         <div class="jbsui-field"><input class="badge-text" type="text" autocomplete="off" aria-label="名札文言"></div>
       </td>
-      <td class="col-color color-cell">
+      <td class="col-color">
         <div class="color-presets" aria-label="名札帯色">
-          <button type="button" data-color="" class="color-none" title="色なし" aria-label="色なし"></button>
+          <button type="button" data-color="" title="色なし" aria-label="色なし"></button>
           <button type="button" data-color="#000000" title="黒" aria-label="黒"></button>
           <button type="button" data-color="#d32f2f" title="赤" aria-label="赤"></button>
           <button type="button" data-color="#1b5fbf" title="青" aria-label="青"></button>
@@ -132,6 +132,6 @@
 
   <script src="https://jbsbackgammon.github.io/common/ui.js?v=2"></script>
   <script src="https://jbsbackgammon.github.io/common/naming.js"></script>
-  <script type="module" src="./src/app.js?v=34"></script>
+  <script type="module" src="./src/app.js?v=35"></script>
 </body>
 </html>
